@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="AITrainingSystem.API/AITrainingSystem.API.csproj" />
+  <Project Path="AITrainingSystem.Application/AITrainingSystem.Application.csproj" />
+  <Project Path="AITrainingSystem.Domain/AITrainingSystem.Domain.csproj" />
+  <Project Path="AITrainingSystem.Infrastructure/AITrainingSystem.Infrastructure.csproj" />
+  <Project Path="AITrainingSystem.Persistence/AITrainingSystem.Persistence.csproj" />
+</Solution>
