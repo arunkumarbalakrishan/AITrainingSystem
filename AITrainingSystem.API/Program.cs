@@ -1,108 +1,51 @@
-using AITrainingSystem.Infrastructure.Services.Auth;
-using AITrainingSystem.Persistence.Context;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
-using AITrainingSystem.Application.Interfaces.Auth;
-
+using AITrainingSystem.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "AI Training System API",
-        Version = "v1"
-    });
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter JWT Token"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+// Add Controllers
 builder.Services.AddControllers();
+
+
+// Database Configuration
+builder.Services.AddDatabase(builder.Configuration);
+
+//Add vaidation
+builder.Services.AddValidation();
+
+// JWT Authentication
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
+
+// Authorization
 builder.Services.AddAuthorization();
 
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+// Dependency Injection
+builder.Services.AddApplicationServices();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(
-                builder.Configuration["JwtSettings:Key"]!
-            )
-        )
-    };
-});
-
-builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-
+// Swagger Configuration
+builder.Services.AddSwaggerDocumentation();
 
 var app = builder.Build();
 
 
-// Configure the HTTP request pipeline.
+// Configure Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
+
     app.UseSwaggerUI();
 }
 
+app.UseGlobalExceptionHandler();
+
 app.UseHttpsRedirection();
 
-
-app.MapControllers();
 app.UseAuthentication();
+
 app.UseAuthorization();
 
-app.Run();
+app.MapControllers();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.Run();

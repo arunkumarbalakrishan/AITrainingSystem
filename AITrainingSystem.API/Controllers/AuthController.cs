@@ -28,6 +28,14 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(request);
 
+        if (string.IsNullOrEmpty(result.Token))
+        {
+            return Unauthorized(new
+            {
+                message = result.Message
+            });
+        }
+
         return Ok(result);
     }
 }
