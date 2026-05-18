@@ -7,8 +7,8 @@ namespace AITrainingSystem.API.Controllers;
 [Route("api/[controller]")]
 public class TestController : ControllerBase
 {
-    [Authorize]
-    [HttpGet("profile")]
+    [Authorize(Roles = "Admin")]
+    [HttpGet("Admin")]
     public IActionResult GetProfile()
     {
         return Ok("Protected API Working");

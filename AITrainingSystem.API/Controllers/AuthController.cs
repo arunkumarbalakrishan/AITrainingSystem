@@ -24,11 +24,27 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequestDto request)
+    public async Task<IActionResult> Login(LoginRequestDto dto)
     {
-        var result = await _authService.LoginAsync(request);
+        var result = await _authService.LoginAsync(dto);
 
-        if (string.IsNullOrEmpty(result.Token))
+        if (string.IsNullOrEmpty(result.AccessToken))
+        {
+            return Unauthorized(new
+            {
+                message = result.Message
+            });
+        }
+
+        return Ok(result);
+    }
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(
+    RefreshTokenRequestDto dto)
+    {
+        var result = await _authService.RefreshTokenAsync(dto);
+
+        if (string.IsNullOrEmpty(result.AccessToken))
         {
             return Unauthorized(new
             {

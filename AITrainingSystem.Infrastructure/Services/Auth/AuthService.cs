@@ -74,14 +74,67 @@ public class AuthService : IAuthService
             };
         }
 
-        var token = _jwtService.GenerateToken(user);
+        var accessToken = _jwtService.GenerateToken(user);
+
+        var refreshToken = _jwtService.GenerateRefreshToken();
+
+        var refreshTokenEntity = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = refreshToken,
+            ExpiryDate = DateTime.UtcNow.AddDays(7),
+            UserId = user.Id
+        };
+
+        _context.RefreshTokens.Add(refreshTokenEntity);
+
+        await _context.SaveChangesAsync();
 
         return new AuthResponseDto
         {
-            Token = token,
-            Message = "Login successful",
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
             Email = user.Email,
-            Role = user.Role
+            Role = user.Role,
+            Message = "Login successful"
+        };
+    }
+
+    public async Task<AuthResponseDto> RefreshTokenAsync(
+    RefreshTokenRequestDto dto)
+    {
+        var existingToken = await _context.RefreshTokens
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x =>
+                x.Token == dto.RefreshToken);
+
+        if (existingToken == null)
+            throw new Exception("Invalid refresh token");
+
+        if (existingToken.IsRevoked)
+            throw new Exception("Refresh token revoked");
+
+        if (existingToken.ExpiryDate < DateTime.UtcNow)
+            throw new Exception("Refresh token expired");
+
+        var newAccessToken =
+            _jwtService.GenerateToken(existingToken.User);
+
+        var newRefreshToken =
+            _jwtService.GenerateRefreshToken();
+
+        existingToken.Token = newRefreshToken;
+        existingToken.ExpiryDate = DateTime.UtcNow.AddDays(7);
+
+        await _context.SaveChangesAsync();
+
+        return new AuthResponseDto
+        {
+            AccessToken = newAccessToken,
+            RefreshToken = newRefreshToken,
+            Email = existingToken.User.Email,
+            Role = existingToken.User.Role,
+            Message = "Token refreshed successfully"
         };
     }
 }
