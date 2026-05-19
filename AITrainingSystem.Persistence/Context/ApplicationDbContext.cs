@@ -17,5 +17,13 @@ namespace AITrainingSystem.Persistence.Context
 
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Course> Courses { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        }
     }
 }

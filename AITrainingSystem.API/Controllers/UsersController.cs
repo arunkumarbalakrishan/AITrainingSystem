@@ -1,4 +1,5 @@
-﻿using AITrainingSystem.Application.DTOs.Common;
+﻿using AITrainingSystem.Application.Common.Models;
+using AITrainingSystem.Application.DTOs.Common;
 using AITrainingSystem.Application.DTOs.User;
 using AITrainingSystem.Application.DTOs.Users;
 using AITrainingSystem.Application.Interfaces.Services;
@@ -35,7 +36,7 @@ public class UsersController : ControllerBase
         if (user == null)
             return NotFound();
 
-        return Ok(user);
+        return Ok(ApiResponse<UserResponseDto>.SuccessResponse(user, "User retrieved successfully"));
     }
 
     [Authorize(Roles = "Admin")]
@@ -45,7 +46,7 @@ public class UsersController : ControllerBase
     {
         var result = await _userService.GetAllUsersAsync(queryParams);
 
-        return Ok(result);
+        return Ok(ApiResponse<PagedResult<UserResponseDto>>.SuccessResponse(result, "Users retrieved successfully"));
     }
 
     [HttpGet("{id}")]
@@ -57,7 +58,7 @@ public class UsersController : ControllerBase
         if (user == null)
             return NotFound();
 
-        return Ok(user);
+        return Ok(ApiResponse<UserResponseDto>.SuccessResponse(user, "User retrieved successfully"));
     }
 
     [HttpPut("{id}")]

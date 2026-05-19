@@ -30,18 +30,7 @@ public class UserService : IUserService
             Role = user.Role
         };
     }
-    public async Task<List<UserResponseDto>> GetAllUsersAsync()
-    {
-        var users = await _userRepository.GetAllAsync();
 
-        return users.Select(user => new UserResponseDto
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role
-        }).ToList();
-    }
     public async Task<UserResponseDto?> GetUserByIdAsync(Guid id)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -82,16 +71,16 @@ public class UserService : IUserService
 
         return true;
     }
-    public async Task<PagedResult<UserDto>> GetAllUsersAsync(UserQueryParams queryParams)
+    public async Task<PagedResult<UserResponseDto>> GetAllUsersAsync(UserQueryParams queryParams)
     {
         var pagedUsers = await _userRepository.GetAllUsersAsync(queryParams);
 
-        return new PagedResult<UserDto>
+        return new PagedResult<UserResponseDto>
         {
-            Items = pagedUsers.Items.Select(x => new UserDto
+            Items = pagedUsers.Items.Select(x => new UserResponseDto
             {
                 Id = x.Id,
-                Name = x.FullName,
+                FullName = x.FullName,
                 Email = x.Email,
                 Role = x.Role
             }),

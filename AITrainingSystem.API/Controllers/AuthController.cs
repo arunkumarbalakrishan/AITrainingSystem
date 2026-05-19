@@ -1,4 +1,5 @@
-﻿using AITrainingSystem.Application.DTOs.Auth;
+﻿using AITrainingSystem.Application.Common.Models;
+using AITrainingSystem.Application.DTOs.Auth;
 using AITrainingSystem.Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.RegisterAsync(request);
 
-        return Ok(result);
+        return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "User registered successfully"));
     }
 
     [HttpPost("login")]
@@ -36,7 +37,7 @@ public class AuthController : ControllerBase
             });
         }
 
-        return Ok(result);
+        return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Login successful"));
     }
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(
@@ -52,6 +53,6 @@ public class AuthController : ControllerBase
             });
         }
 
-        return Ok(result);
+        return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Token refreshed successfully"));
     }
 }

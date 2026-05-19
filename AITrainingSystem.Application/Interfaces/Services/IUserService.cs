@@ -7,10 +7,9 @@ namespace AITrainingSystem.Application.Interfaces.Services;
 public interface IUserService
 {
     Task<UserResponseDto?> GetCurrentUserAsync(Guid userId);
-    Task<List<UserResponseDto>> GetAllUsersAsync();
+    Task<PagedResult<UserResponseDto>> GetAllUsersAsync(UserQueryParams queryParams);
     Task<UserResponseDto?> GetUserByIdAsync(Guid id);
 
     Task<bool> UpdateUserAsync(Guid id, UpdateUserDto dto);
     Task<bool> DeleteUserAsync(Guid id);
-    Task<PagedResult<UserDto>> GetAllUsersAsync(UserQueryParams queryParams);
 }
