@@ -1,5 +1,6 @@
 ﻿using AITrainingSystem.Application.Common.Models;
 using AITrainingSystem.Application.DTOs.Course;
+using AITrainingSystem.Application.DTOs.Lesson;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Domain.Entities;
@@ -148,5 +149,34 @@ public class CourseService : ICourseService
         return ApiResponse<string>.SuccessResponse(
             "Course deleted successfully"
         );
+    }
+    public async Task<CourseWithLessonsDto?> GetCourseWithLessonsAsync(Guid courseId)
+    {
+        var course = await _courseRepository.GetCourseWithLessonsAsync(courseId);
+
+        if (course == null)
+            return null;
+
+        return new CourseWithLessonsDto
+        {
+            Id = course.Id,
+            Title = course.Title,
+            Description = course.Description,
+
+            Lessons = course.Lessons
+                .OrderBy(x => x.Order)
+                .Select(l => new LessonResponseDto
+                {
+                    Id = l.Id,
+                    CourseId = l.CourseId,
+                    Title = l.Title,
+                    Description = l.Description,
+                    VideoUrl = l.VideoUrl,
+                    PdfUrl = l.PdfUrl,
+                    DurationInMinutes = l.DurationInMinutes,
+                    Order = l.Order,
+                    IsPreviewFree = l.IsPreviewFree
+                }).ToList()
+        };
     }
 }

@@ -15,7 +15,6 @@ public class CourseController : ControllerBase
         _courseService = courseService;
     }
 
-    // CREATE COURSE
     [HttpPost]
     public async Task<IActionResult> CreateCourse(CreateCourseDto dto)
     {
@@ -24,7 +23,6 @@ public class CourseController : ControllerBase
         return Ok(response);
     }
 
-    // GET ALL COURSES
     [HttpGet]
     public async Task<IActionResult> GetAllCourses()
     {
@@ -33,7 +31,6 @@ public class CourseController : ControllerBase
         return Ok(response);
     }
 
-    // GET COURSE BY ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCourseById(Guid id)
     {
@@ -47,7 +44,6 @@ public class CourseController : ControllerBase
         return Ok(response);
     }
 
-    // UPDATE COURSE
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCourse(Guid id, UpdateCourseDto dto)
     {
@@ -61,7 +57,6 @@ public class CourseController : ControllerBase
         return Ok(response);
     }
 
-    // DELETE COURSE
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCourse(Guid id)
     {
@@ -73,5 +68,16 @@ public class CourseController : ControllerBase
         }
 
         return Ok(response);
+    }
+
+    [HttpGet("{id}/full")]
+    public async Task<IActionResult> GetCourseWithLessons(Guid id)
+    {
+        var result = await _courseService.GetCourseWithLessonsAsync(id);
+
+        if (result == null)
+            return NotFound();
+
+        return Ok(result);
     }
 }

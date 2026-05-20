@@ -55,4 +55,10 @@ public class CourseRepository : ICourseRepository
         return await _context.Courses
             .AnyAsync(x => x.Id == id);
     }
+    public async Task<Course?> GetCourseWithLessonsAsync(Guid courseId)
+    {
+        return await _context.Courses
+            .Include(c => c.Lessons.OrderBy(l => l.Order))
+            .FirstOrDefaultAsync(c => c.Id == courseId);
+    }
 }

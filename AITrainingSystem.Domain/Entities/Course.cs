@@ -22,4 +22,8 @@ public class Course
 
     // Relationships (future expansion)
     public Guid? InstructorId { get; set; }
+
+    public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+
+
 }
