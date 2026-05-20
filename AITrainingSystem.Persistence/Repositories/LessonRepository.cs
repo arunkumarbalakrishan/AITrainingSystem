@@ -30,18 +30,22 @@ public class LessonRepository : ILessonRepository
     public async Task AddAsync(Lesson lesson)
     {
         await _context.Lessons.AddAsync(lesson);
+
+        await _context.SaveChangesAsync();
     }
 
-    public Task UpdateAsync(Lesson lesson)
+    public async Task UpdateAsync(Lesson lesson)
     {
         _context.Lessons.Update(lesson);
-        return Task.CompletedTask;
+
+        await _context.SaveChangesAsync();
     }
 
-    public Task DeleteAsync(Lesson lesson)
+    public async Task DeleteAsync(Lesson lesson)
     {
         _context.Lessons.Remove(lesson);
-        return Task.CompletedTask;
+
+        await _context.SaveChangesAsync();
     }
     public async Task<int> GetNextOrderAsync(Guid courseId)
     {

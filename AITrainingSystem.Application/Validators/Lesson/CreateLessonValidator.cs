@@ -25,8 +25,7 @@ namespace AITrainingSystem.Application.Validators.Lesson
             RuleFor(x => x.DurationInMinutes)
                 .GreaterThan(0);
 
-            RuleFor(x => x.Order)
-                .GreaterThan(0);
+           
         }
     }
 }

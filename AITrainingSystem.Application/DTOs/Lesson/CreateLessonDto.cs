@@ -20,8 +20,6 @@ namespace AITrainingSystem.Application.DTOs.Lesson
 
         public int DurationInMinutes { get; set; }
 
-        public int Order { get; set; }
-
         public bool IsPreviewFree { get; set; }
     }
 }

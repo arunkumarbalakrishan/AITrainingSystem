@@ -4,7 +4,7 @@ using AITrainingSystem.Application.DTOs.Users;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Services;
 
-namespace AITrainingSystem.Infrastructure.Services;
+namespace AITrainingSystem.Infrastructure.Services.users;
 
 public class UserService : IUserService
 {

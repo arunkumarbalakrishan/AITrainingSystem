@@ -5,7 +5,7 @@ using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Domain.Entities;
 
-namespace AITrainingSystem.Infrastructure.Services.Course;
+namespace AITrainingSystem.Infrastructure.Services.Courses;
 
 public class CourseService : ICourseService
 {
@@ -18,7 +18,7 @@ public class CourseService : ICourseService
 
     public async Task<ApiResponse<CourseResponseDto>> CreateAsync(CreateCourseDto dto)
     {
-        var course = new Domain.Entities.Course
+        var course = new Course
         {
             Id = Guid.NewGuid(),
             Title = dto.Title,

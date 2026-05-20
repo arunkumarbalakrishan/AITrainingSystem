@@ -16,7 +16,15 @@ public class LessonController : ControllerBase
     public async Task<IActionResult> Create(CreateLessonDto dto)
     {
         var id = await _service.CreateAsync(dto);
-        return Ok(id);
+        return Ok(new
+        {
+            Success = true,
+            Message = "Lesson created successfully",
+            Data = new
+            {
+                Id = id
+            }
+        });
     }
 
     [HttpGet("course/{courseId}")]

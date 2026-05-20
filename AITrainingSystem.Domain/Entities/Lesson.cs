@@ -18,7 +18,7 @@ public class Lesson
 
     public int Order { get; set; }
 
-    public bool IsPreviewFree { get; set; } = false;
+    public bool IsPreviewFree { get; set; } 
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
