@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using AITrainingSystem.Application.DTOs.Course;
 using AITrainingSystem.Domain.Entities;
 
 namespace AITrainingSystem.Application.Interfaces.Repositories;
@@ -21,5 +21,6 @@ public interface ICourseRepository
     Task DeleteAsync(Course course);
 
     Task<bool> ExistsAsync(Guid id);
-    Task<Course?> GetCourseWithLessonsAsync(Guid courseId);
+
+    Task<CourseFullDto?> GetCourseFullOptimizedAsync(Guid courseId, Guid userId);
 }

@@ -1,6 +1,8 @@
 ﻿using AITrainingSystem.Application.DTOs.Course;
 using AITrainingSystem.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AITrainingSystem.API.Controllers;
 
@@ -67,17 +69,50 @@ public class CourseController : ControllerBase
             return NotFound(response);
         }
 
-        return Ok(response);
+        return Ok(new { Success = true, Message = response.Data });
     }
 
+    [Authorize]
     [HttpGet("{id}/full")]
-    public async Task<IActionResult> GetCourseWithLessons(Guid id)
+    public async Task<IActionResult> GetFull(Guid id)
     {
-        var result = await _courseService.GetCourseWithLessonsAsync(id);
+        var userIdClaim =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim))
+        {
+            return Unauthorized(new
+            {
+                Success = false,
+                Message = "User not authenticated"
+            });
+        }
+
+        if (!Guid.TryParse(userIdClaim, out var userId))
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Message = "Invalid user ID"
+            });
+        }
+
+        var result = await _courseService
+            .GetCourseFullAsync(id, userId);
 
         if (result == null)
-            return NotFound();
+        {
+            return NotFound(new
+            {
+                Success = false,
+                Message = "Course not found"
+            });
+        }
 
-        return Ok(result);
+        return Ok(new
+        {
+            Success = true,
+            Data = result
+        });
     }
 }

@@ -40,7 +40,10 @@ public static class DependencyInjectionExt
         //Enrollment Services
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IEnrollmentService, EnrollmentService>();
-      
+
+        // Media Services
+        services.AddScoped<IMediaAccessService, MediaAccessService>();
+
 
         return services;
     }

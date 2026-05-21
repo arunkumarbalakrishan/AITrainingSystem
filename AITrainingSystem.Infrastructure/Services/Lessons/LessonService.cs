@@ -2,16 +2,21 @@
 using AITrainingSystem.Application.Interfaces.Lessons;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 public class LessonService : ILessonService
 {
     private readonly ILessonRepository _repo;
     private readonly ICourseRepository _courseRepo;
+    private readonly IEnrollmentRepository _enrollmentRepo;
+    private readonly IMediaAccessService _mediaService;
 
-    public LessonService(ILessonRepository repo, ICourseRepository courseRepo)
+    public LessonService(ILessonRepository repo, ICourseRepository courseRepo, IEnrollmentRepository enrollmentRepo, IMediaAccessService mediaService)
     {
         _repo = repo;
         _courseRepo = courseRepo;
+        _enrollmentRepo = enrollmentRepo;
+        _mediaService = mediaService;
     }
 
     public async Task<Guid> CreateAsync(CreateLessonDto dto)
@@ -35,8 +40,8 @@ public class LessonService : ILessonService
             CourseId = dto.CourseId,
             Title = dto.Title,
             Description = dto.Description,
-            VideoUrl = dto.VideoUrl,
-            PdfUrl = dto.PdfUrl,
+            VideoKey = dto.VideoUrl,
+            PdfKey = dto.PdfUrl,
             DurationInMinutes = dto.DurationInMinutes,
             Order = nextOrder,
             IsPreviewFree = dto.IsPreviewFree
@@ -57,33 +62,45 @@ public class LessonService : ILessonService
             CourseId = x.CourseId,
             Title = x.Title,
             Description = x.Description,
-            VideoUrl = x.VideoUrl,
-            PdfUrl = x.PdfUrl,
+            VideoUrl = _mediaService.GenerateSecureVideoUrl(x.VideoKey),
+            PdfUrl = x.PdfKey == null
+    ? null
+    : _mediaService.GenerateSecurePdfUrl(x.PdfKey),
             DurationInMinutes = x.DurationInMinutes,
             Order = x.Order,
             IsPreviewFree = x.IsPreviewFree
         }).ToList();
     }
 
-    public async Task<LessonResponseDto> GetByIdAsync(Guid id)
+    public async Task<LessonAccessDto> GetByIdAsync(Guid lessonId, Guid userId)
     {
-        var x = await _repo.GetByIdAsync(id);
+        var lesson = await _repo.GetByIdAsync(lessonId);
 
-        if (x == null)
+        if (lesson == null)
             throw new Exception("Lesson not found");
 
-        return new LessonResponseDto
+        var isEnrolled = await _enrollmentRepo
+            .IsUserEnrolledAsync(userId, lesson.CourseId);
+
+        var dto = new LessonAccessDto
         {
-            Id = x.Id,
-            CourseId = x.CourseId,
-            Title = x.Title,
-            Description = x.Description,
-            VideoUrl = x.VideoUrl,
-            PdfUrl = x.PdfUrl,
-            DurationInMinutes = x.DurationInMinutes,
-            Order = x.Order,
-            IsPreviewFree = x.IsPreviewFree
+            Id = lesson.Id,
+            Title = lesson.Title,
+            IsPreviewFree = lesson.IsPreviewFree,
+            IsLocked = !isEnrolled && !lesson.IsPreviewFree,
+
+            VideoUrl = (isEnrolled || lesson.IsPreviewFree)
+                    ? _mediaService.GenerateSecureVideoUrl(lesson.VideoKey)
+                    : null,
+
+            PdfUrl = (isEnrolled || lesson.IsPreviewFree)
+                        ? lesson.PdfKey == null
+                            ? null
+                            : _mediaService.GenerateSecurePdfUrl(lesson.PdfKey)
+                        : null
         };
+
+        return dto;
     }
 
     public async Task<bool> UpdateAsync(Guid id, UpdateLessonDto dto)
@@ -95,8 +112,8 @@ public class LessonService : ILessonService
 
         lesson.Title = dto.Title;
         lesson.Description = dto.Description;
-        lesson.VideoUrl = dto.VideoUrl;
-        lesson.PdfUrl = dto.PdfUrl;
+        lesson.VideoKey = dto.VideoUrl;
+        lesson.PdfKey = dto.PdfUrl;
         lesson.DurationInMinutes = dto.DurationInMinutes;
         lesson.Order = dto.Order;
         lesson.IsPreviewFree = dto.IsPreviewFree;

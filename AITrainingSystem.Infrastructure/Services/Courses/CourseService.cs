@@ -10,6 +10,7 @@ namespace AITrainingSystem.Infrastructure.Services.Courses;
 public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
+    
 
     public CourseService(ICourseRepository courseRepository)
     {
@@ -150,33 +151,38 @@ public class CourseService : ICourseService
             "Course deleted successfully"
         );
     }
-    public async Task<CourseWithLessonsDto?> GetCourseWithLessonsAsync(Guid courseId)
+    //public async Task<ApiResponse<CourseWithLessonsDto>> GetCourseWithLessonsAsync(Guid courseId)
+    //{
+    //    var course = await _courseRepository.GetByIdWithLessonsAsync(courseId);
+
+    //    if (course == null)
+    //        return ApiResponse<CourseWithLessonsDto>.FailResponse("Course not found");
+
+    //    return ApiResponse<CourseWithLessonsDto>.SuccessResponse(
+    //        new CourseWithLessonsDto
+    //        {
+    //            Id = course.Id,
+    //            Title = course.Title,
+    //            Description = course.Description,
+
+    //            Lessons = course.Lessons
+    //            .OrderBy(x => x.Order)
+    //            .Select(l => new LessonResponseDto
+    //            {
+    //                Id = l.Id,
+    //                CourseId = l.CourseId,
+    //                Title = l.Title,
+    //                Description = l.Description,
+    //                VideoUrl = l.VideoUrl,
+    //                PdfUrl = l.PdfUrl,
+    //                DurationInMinutes = l.DurationInMinutes,
+    //                Order = l.Order,
+    //                IsPreviewFree = l.IsPreviewFree
+    //            }).ToList()
+    //        } );
+    //}
+    public async Task<CourseFullDto?> GetCourseFullAsync(Guid courseId, Guid userId)
     {
-        var course = await _courseRepository.GetCourseWithLessonsAsync(courseId);
-
-        if (course == null)
-            return null;
-
-        return new CourseWithLessonsDto
-        {
-            Id = course.Id,
-            Title = course.Title,
-            Description = course.Description,
-
-            Lessons = course.Lessons
-                .OrderBy(x => x.Order)
-                .Select(l => new LessonResponseDto
-                {
-                    Id = l.Id,
-                    CourseId = l.CourseId,
-                    Title = l.Title,
-                    Description = l.Description,
-                    VideoUrl = l.VideoUrl,
-                    PdfUrl = l.PdfUrl,
-                    DurationInMinutes = l.DurationInMinutes,
-                    Order = l.Order,
-                    IsPreviewFree = l.IsPreviewFree
-                }).ToList()
-        };
+        return await _courseRepository.GetCourseFullOptimizedAsync(courseId, userId);
     }
 }

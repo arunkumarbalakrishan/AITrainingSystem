@@ -19,5 +19,8 @@ public interface ICourseService
     Task<ApiResponse<CourseResponseDto>> UpdateAsync(Guid id, UpdateCourseDto dto);
 
     Task<ApiResponse<string>> DeleteAsync(Guid id);
-    Task<CourseWithLessonsDto?> GetCourseWithLessonsAsync(Guid courseId);
+
+    //Task<ApiResponse<CourseWithLessonsDto>> GetCourseWithLessonsAsync(Guid courseId);
+
+    Task<CourseFullDto?> GetCourseFullAsync(Guid courseId, Guid userId);
 }

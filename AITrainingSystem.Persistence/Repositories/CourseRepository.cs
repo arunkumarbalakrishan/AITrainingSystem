@@ -1,4 +1,5 @@
-﻿using AITrainingSystem.Application.Interfaces.Repositories;
+﻿using AITrainingSystem.Application.DTOs.Course;
+using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -55,10 +56,37 @@ public class CourseRepository : ICourseRepository
         return await _context.Courses
             .AnyAsync(x => x.Id == id);
     }
-    public async Task<Course?> GetCourseWithLessonsAsync(Guid courseId)
+    public async Task<CourseFullDto?> GetCourseFullOptimizedAsync(Guid courseId, Guid userId)
     {
+        var isEnrolled = await _context.Enrollments
+            .AnyAsync(x => x.UserId == userId && x.CourseId == courseId);
+
         return await _context.Courses
-            .Include(c => c.Lessons.OrderBy(l => l.Order))
-            .FirstOrDefaultAsync(c => c.Id == courseId);
+            .Where(c => c.Id == courseId)
+            .Select(c => new CourseFullDto
+            {
+                Id = c.Id,
+                Title = c.Title,
+
+                Lessons = c.Lessons
+                    .OrderBy(l => l.Order)
+                    .Select(l => new LessonAccessDto
+                    {
+                        Id = l.Id,
+                        Title = l.Title,
+                        IsPreviewFree = l.IsPreviewFree,
+                        IsLocked = !isEnrolled && !l.IsPreviewFree,
+
+                        VideoUrl = (isEnrolled || l.IsPreviewFree)
+                            ? l.VideoKey
+                            : null,
+
+                        PdfUrl = (isEnrolled || l.IsPreviewFree)
+                            ? l.PdfKey
+                            : null
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
     }
 }

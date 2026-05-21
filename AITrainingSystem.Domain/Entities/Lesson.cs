@@ -10,9 +10,9 @@ public class Lesson
 
     public string Description { get; set; } = string.Empty;
 
-    public string VideoUrl { get; set; } = string.Empty;
+    public string VideoKey { get; set; } = string.Empty;
 
-    public string? PdfUrl { get; set; }
+    public string? PdfKey { get; set; }
 
     public int DurationInMinutes { get; set; }
 

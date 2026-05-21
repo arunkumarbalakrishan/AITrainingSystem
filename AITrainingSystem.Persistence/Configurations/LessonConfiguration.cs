@@ -17,7 +17,7 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
         builder.Property(x => x.Description)
             .HasMaxLength(1000);
 
-        builder.Property(x => x.VideoUrl)
+        builder.Property(x => x.VideoKey)
             .IsRequired();
 
         builder.Property(x => x.DurationInMinutes)
