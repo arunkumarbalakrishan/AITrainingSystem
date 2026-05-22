@@ -24,4 +24,7 @@ public class Lesson
 
     // Navigation Property
     public Course Course { get; set; } = null!;
+
+    public ICollection<LessonProgress> Progresses { get; set; } = new List<LessonProgress>();
+
 }

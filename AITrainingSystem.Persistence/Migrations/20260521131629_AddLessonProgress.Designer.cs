@@ -4,6 +4,7 @@ using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AITrainingSystem.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521131629_AddLessonProgress")]
+    partial class AddLessonProgress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,34 +121,6 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.ToTable("Lessons");
                 });
 
-            modelBuilder.Entity("AITrainingSystem.Domain.Entities.LessonProgress", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("LessonId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LessonId");
-
-                    b.HasIndex("UserId", "LessonId")
-                        .IsUnique();
-
-                    b.ToTable("LessonProgresses");
-                });
-
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -237,25 +212,6 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("AITrainingSystem.Domain.Entities.LessonProgress", b =>
-                {
-                    b.HasOne("AITrainingSystem.Domain.Entities.Lesson", "Lesson")
-                        .WithMany("Progresses")
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AITrainingSystem.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Lesson");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("AITrainingSystem.Domain.Entities.User", "User")
@@ -289,11 +245,6 @@ namespace AITrainingSystem.Persistence.Migrations
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.Course", b =>
                 {
                     b.Navigation("Lessons");
-                });
-
-            modelBuilder.Entity("AITrainingSystem.Domain.Entities.Lesson", b =>
-                {
-                    b.Navigation("Progresses");
                 });
 #pragma warning restore 612, 618
         }

@@ -33,5 +33,10 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
 
         builder.HasIndex(x => new { x.CourseId, x.Order })
          .IsUnique();
+
+        builder.HasMany(x => x.Progresses)
+    .WithOne(x => x.Lesson)
+    .HasForeignKey(x => x.LessonId)
+    .OnDelete(DeleteBehavior.Cascade);
     }
 }
