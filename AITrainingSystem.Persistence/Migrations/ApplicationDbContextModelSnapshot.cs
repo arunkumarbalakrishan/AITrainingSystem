@@ -146,6 +146,51 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.ToTable("LessonProgresses");
                 });
 
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.MediaFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MediaType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("MediaFiles");
+                });
+
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -256,6 +301,17 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.MediaFile", b =>
+                {
+                    b.HasOne("AITrainingSystem.Domain.Entities.Lesson", "Lesson")
+                        .WithMany("MediaFiles")
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("AITrainingSystem.Domain.Entities.User", "User")
@@ -293,6 +349,8 @@ namespace AITrainingSystem.Persistence.Migrations
 
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.Lesson", b =>
                 {
+                    b.Navigation("MediaFiles");
+
                     b.Navigation("Progresses");
                 });
 #pragma warning restore 612, 618

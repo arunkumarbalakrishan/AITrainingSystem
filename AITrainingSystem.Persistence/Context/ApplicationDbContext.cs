@@ -23,6 +23,7 @@ namespace AITrainingSystem.Persistence.Context
         public DbSet<Enrollment> Enrollments { get; set; }
 
         public DbSet<LessonProgress> LessonProgresses { get; set; } 
+        public DbSet<MediaFile> MediaFiles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -1,4 +1,5 @@
 ﻿using AITrainingSystem.Application.DTOs.Lesson;
+using AITrainingSystem.Application.Features.Media.Interfaces;
 using AITrainingSystem.Application.Interfaces.Lessons;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Domain.Entities;
@@ -62,17 +63,24 @@ public class LessonService : ILessonService
             CourseId = x.CourseId,
             Title = x.Title,
             Description = x.Description,
-            VideoUrl = _mediaService.GenerateSecureVideoUrl(x.VideoKey),
+
+            // SECURE MEDIA ENDPOINTS
+            VideoUrl = $"/api/media/video/{x.Id}",
+
             PdfUrl = x.PdfKey == null
-    ? null
-    : _mediaService.GenerateSecurePdfUrl(x.PdfKey),
+                ? null
+                : $"/api/media/pdf/{x.Id}",
+
             DurationInMinutes = x.DurationInMinutes,
             Order = x.Order,
             IsPreviewFree = x.IsPreviewFree
+
         }).ToList();
     }
 
-    public async Task<LessonAccessDto> GetByIdAsync(Guid lessonId, Guid userId)
+    public async Task<LessonAccessDto> GetByIdAsync(
+     Guid lessonId,
+     Guid userId)
     {
         var lesson = await _repo.GetByIdAsync(lessonId);
 
@@ -86,18 +94,23 @@ public class LessonService : ILessonService
         {
             Id = lesson.Id,
             Title = lesson.Title,
+
             IsPreviewFree = lesson.IsPreviewFree,
-            IsLocked = !isEnrolled && !lesson.IsPreviewFree,
 
+            IsLocked = !isEnrolled &&
+                       !lesson.IsPreviewFree,
+
+            // SECURE VIDEO ACCESS
             VideoUrl = (isEnrolled || lesson.IsPreviewFree)
-                    ? _mediaService.GenerateSecureVideoUrl(lesson.VideoKey)
-                    : null,
+                ? $"/api/media/video/{lesson.Id}"
+                : null,
 
+            // SECURE PDF ACCESS
             PdfUrl = (isEnrolled || lesson.IsPreviewFree)
-                        ? lesson.PdfKey == null
-                            ? null
-                            : _mediaService.GenerateSecurePdfUrl(lesson.PdfKey)
-                        : null
+                ? lesson.PdfKey == null
+                    ? null
+                    : $"/api/media/pdf/{lesson.Id}"
+                : null
         };
 
         return dto;

@@ -1,4 +1,6 @@
-﻿using AITrainingSystem.Application.Interfaces.Auth;
+﻿using AITrainingSystem.Application.Features.Media.Interfaces;
+using AITrainingSystem.Application.Features.Media.Services;
+using AITrainingSystem.Application.Interfaces.Auth;
 using AITrainingSystem.Application.Interfaces.Lessons;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Respository;
@@ -45,6 +47,8 @@ public static class DependencyInjectionExt
 
         // Media Services
         services.AddScoped<IMediaAccessService, MediaAccessService>();
+        services.AddScoped<IMediaService, MediaService>();
+
 
         // Progress Services
         services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();

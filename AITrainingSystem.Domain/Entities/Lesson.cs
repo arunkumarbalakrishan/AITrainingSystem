@@ -26,5 +26,7 @@ public class Lesson
     public Course Course { get; set; } = null!;
 
     public ICollection<LessonProgress> Progresses { get; set; } = new List<LessonProgress>();
+    public ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
+
 
 }
