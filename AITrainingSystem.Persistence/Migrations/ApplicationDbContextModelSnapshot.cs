@@ -247,6 +247,35 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.VideoProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LastWatchedSecond")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("WatchPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VideoProgresses");
+                });
+
             modelBuilder.Entity("Enrollment", b =>
                 {
                     b.Property<Guid>("Id")

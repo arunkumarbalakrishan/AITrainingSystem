@@ -12,5 +12,7 @@ namespace AITrainingSystem.Application.Features.Media.Interfaces
         Task<MediaAccessResponseDto>GetLessonVideoAsync( Guid lessonId, Guid userId);
 
         Task<MediaAccessResponseDto> GetLessonPdfAsync( Guid lessonId, Guid userId);
+
+        Task SaveVideoProgressAsync(Guid userId,SaveVideoProgressDto dto);
     }
 }

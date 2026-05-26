@@ -40,7 +40,7 @@ public class ExceptionMiddleware
         var response = new
         {
             message = "Something went wrong on server",
-            detail = exception.ToString()
+            detail = exception.Message
         };
 
         return context.Response.WriteAsync(

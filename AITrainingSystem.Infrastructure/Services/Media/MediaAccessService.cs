@@ -1,5 +1,6 @@
 ﻿using AITrainingSystem.Application.Features.Media.DTOs;
 using AITrainingSystem.Application.Features.Media.Interfaces;
+using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Domain.Enums;
 using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -107,5 +108,61 @@ public class MediaAccessService : IMediaAccessService
             ContentType = media.FileType,
             FileSize = media.FileSize
         };
+    }
+    public async Task SaveVideoProgressAsync(
+    Guid userId,
+    SaveVideoProgressDto dto)
+    {
+        // STEP 1 — Check Existing Progress
+        var existingProgress = await _context.VideoProgresses
+            .FirstOrDefaultAsync(x =>
+                x.UserId == userId &&
+                x.LessonId == dto.LessonId);
+
+        // STEP 2 — If Progress Exists → Update
+        if (existingProgress != null)
+        {
+            existingProgress.LastWatchedSecond =
+                dto.LastWatchedSecond;
+
+            existingProgress.WatchPercentage =
+                dto.WatchPercentage;
+
+            existingProgress.IsCompleted =
+                dto.WatchPercentage >= 90;
+
+            existingProgress.UpdatedAt =
+                DateTime.UtcNow;
+        }
+
+        // STEP 3 — Else Create New Progress
+        else
+        {
+            var progress = new VideoProgress
+            {
+                Id = Guid.NewGuid(),
+
+                UserId = userId,
+
+                LessonId = dto.LessonId,
+
+                LastWatchedSecond =
+                    dto.LastWatchedSecond,
+
+                WatchPercentage =
+                    dto.WatchPercentage,
+
+                IsCompleted =
+                    dto.WatchPercentage >= 90,
+
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _context.VideoProgresses
+                .AddAsync(progress);
+        }
+
+        // STEP 4 — Save Changes
+        await _context.SaveChangesAsync();
     }
 }
