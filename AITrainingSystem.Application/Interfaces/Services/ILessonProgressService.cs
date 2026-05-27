@@ -4,8 +4,6 @@ public interface ILessonProgressService
 {
     Task CompleteLessonAsync(Guid userId, Guid lessonId);
 
-    Task<CourseProgressDto> GetCourseProgressAsync(
-        Guid userId,
-        Guid courseId);
+    Task<CourseProgressDto> GetCourseProgressAsync( Guid userId, Guid courseId);
   
 }

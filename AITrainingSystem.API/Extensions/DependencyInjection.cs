@@ -50,10 +50,12 @@ public static class DependencyInjectionExt
         services.AddScoped<IMediaService, MediaService>();
 
 
-        // Progress Services
+        // Lesson Progress Services
         services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
         services.AddScoped<ILessonProgressService, LessonProgressService>();
 
+        // Progress Services
+        services.AddScoped<IProgressService, ProgressService>();
 
 
         return services;
