@@ -56,7 +56,7 @@ public static class DependencyInjectionExt
 
         // Progress Services
         services.AddScoped<IProgressService, ProgressService>();
-
+        
 
         return services;
     }

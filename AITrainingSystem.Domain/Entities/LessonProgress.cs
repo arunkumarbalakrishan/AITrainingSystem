@@ -14,7 +14,7 @@ namespace AITrainingSystem.Domain.Entities
         public User? User { get; set; }
 
         public Guid LessonId { get; set; }
-        public Lesson? Lesson { get; set; }
+        public Lesson? Lesson { get; set; } 
 
         public bool IsCompleted { get; set; }
 

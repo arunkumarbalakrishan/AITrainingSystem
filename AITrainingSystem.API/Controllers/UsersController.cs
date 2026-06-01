@@ -20,7 +20,7 @@ public class UsersController : ControllerBase
     {
         _userService = userService;
     }
-
+    [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUser()
     {
