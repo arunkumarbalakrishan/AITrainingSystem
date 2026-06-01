@@ -15,5 +15,9 @@ namespace AITrainingSystem.Application.DTOs.Progress
         public int TotalLessons { get; set; }
 
         public double ProgressPercentage { get; set; }
+
+        public bool IsCourseCompleted { get; set; }
+
+        public bool IsCertificateEligible { get; set; }
     }
 }

@@ -4,8 +4,7 @@ using AITrainingSystem.Domain.Entities;
 
 namespace AITrainingSystem.Infrastructure.Services.Progress;
 
-public class LessonProgressService
-    : ILessonProgressService
+public class LessonProgressService : ILessonProgressService
 {
     private readonly ILessonProgressRepository _repo;
 
@@ -40,10 +39,7 @@ public class LessonProgressService
         await _repo.AddAsync(progress);
     }
 
-    public async Task<CourseProgressDto>
-        GetCourseProgressAsync(
-            Guid userId,
-            Guid courseId)
+    public async Task<CourseProgressDto>GetCourseProgressAsync(Guid userId, Guid courseId)
     {
         var completedLessons =
             await _repo.GetCompletedCountAsync(
@@ -59,9 +55,13 @@ public class LessonProgressService
         if (totalLessons > 0)
         {
             percentage =
-                ((double)completedLessons
-                / totalLessons) * 100;
+                ((double)completedLessons /
+                 totalLessons) * 100;
         }
+
+        var isCompleted =
+            totalLessons > 0 &&
+            completedLessons == totalLessons;
 
         return new CourseProgressDto
         {
@@ -69,7 +69,11 @@ public class LessonProgressService
             CompletedLessons = completedLessons,
             TotalLessons = totalLessons,
             ProgressPercentage =
-                Math.Round(percentage, 2)
+                Math.Round(percentage, 2),
+
+            IsCourseCompleted = isCompleted,
+
+            IsCertificateEligible = isCompleted
         };
     }
 }
