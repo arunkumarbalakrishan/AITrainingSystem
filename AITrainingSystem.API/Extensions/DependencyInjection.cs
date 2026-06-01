@@ -1,13 +1,16 @@
 ﻿using AITrainingSystem.Application.Features.Media.Interfaces;
 using AITrainingSystem.Application.Features.Media.Services;
 using AITrainingSystem.Application.Interfaces.Auth;
+using AITrainingSystem.Application.Interfaces.DashboardService;
 using AITrainingSystem.Application.Interfaces.Lessons;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Respository;
 using AITrainingSystem.Application.Interfaces.Services;
+using AITrainingSystem.Application.Services;
 using AITrainingSystem.Application.Validators.Course;
 using AITrainingSystem.Infrastructure.Services.Auth;
 using AITrainingSystem.Infrastructure.Services.Courses;
+using AITrainingSystem.Infrastructure.Services.Dashboard;
 using AITrainingSystem.Infrastructure.Services.Enrollments;
 using AITrainingSystem.Infrastructure.Services.Progress;
 using AITrainingSystem.Infrastructure.Services.users;
@@ -56,7 +59,12 @@ public static class DependencyInjectionExt
 
         // Progress Services
         services.AddScoped<IProgressService, ProgressService>();
-        
+
+        services.AddScoped<ICertificateRepository, CertificateRepository>();
+        services.AddScoped<ICertificateService, CertificateService>();
+
+        services.AddScoped<IDashboardService, DashboardService>();
+
 
         return services;
     }

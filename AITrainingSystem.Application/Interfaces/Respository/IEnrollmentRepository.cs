@@ -10,5 +10,6 @@ public interface IEnrollmentRepository
 
     Task<Enrollment?> GetEnrollmentAsync(Guid userId, Guid courseId);
 
+    Task<int> GetEnrolledCourseCountAsync(Guid userId);
     Task SaveChangesAsync();
 }

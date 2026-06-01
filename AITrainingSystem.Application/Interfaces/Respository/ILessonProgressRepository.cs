@@ -1,4 +1,5 @@
-﻿using AITrainingSystem.Domain.Entities;
+﻿using AITrainingSystem.Application.DTOs.Analytics;
+using AITrainingSystem.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace AITrainingSystem.Application.Interfaces.Respository
 
         Task<int> GetCompletedCountAsync(Guid userId, Guid courseId);
 
+        Task<int> GetCompletedCourseCountAsync(Guid userId);
+        Task<List<RecentlyCompletedCourseDto>> GetRecentlyCompletedCoursesAsync(Guid userId);
         Task<int> GetTotalLessonsAsync(Guid courseId);
     }
 }

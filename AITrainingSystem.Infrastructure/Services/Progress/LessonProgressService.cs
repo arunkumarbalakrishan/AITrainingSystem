@@ -1,6 +1,10 @@
-﻿using AITrainingSystem.Application.DTOs.Progress;
+﻿using AITrainingSystem.Application.DTOs.Analytics;
+using AITrainingSystem.Application.DTOs.Progress;
+using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Respository;
+using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AITrainingSystem.Infrastructure.Services.Progress;
 
@@ -8,10 +12,14 @@ public class LessonProgressService : ILessonProgressService
 {
     private readonly ILessonProgressRepository _repo;
 
+    private readonly ICertificateService _certificateService;
+
     public LessonProgressService(
-        ILessonProgressRepository repo)
+        ILessonProgressRepository repo,
+        ICertificateService certificateService)
     {
         _repo = repo;
+        _certificateService = certificateService;
     }
 
     public async Task CompleteLessonAsync(
@@ -60,20 +68,26 @@ public class LessonProgressService : ILessonProgressService
         }
 
         var isCompleted =
-            totalLessons > 0 &&
-            completedLessons == totalLessons;
+     totalLessons > 0 &&
+     completedLessons == totalLessons;
+
+        if (isCompleted)
+        {
+            await _certificateService.GenerateCertificateAsync(
+                userId,
+                courseId);
+        }
 
         return new CourseProgressDto
         {
             CourseId = courseId,
             CompletedLessons = completedLessons,
             TotalLessons = totalLessons,
-            ProgressPercentage =
-                Math.Round(percentage, 2),
-
+            ProgressPercentage = Math.Round(percentage, 2),
             IsCourseCompleted = isCompleted,
-
             IsCertificateEligible = isCompleted
         };
     }
+
+   
 }

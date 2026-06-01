@@ -25,6 +25,8 @@ namespace AITrainingSystem.Persistence.Context
         public DbSet<LessonProgress> LessonProgresses { get; set; } 
         public DbSet<MediaFile> MediaFiles { get; set; }
         public DbSet<VideoProgress> VideoProgresses { get; set; }
+
+        public DbSet<Certificate> Certificates { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -40,6 +42,10 @@ namespace AITrainingSystem.Persistence.Context
                 .HasOne(e => e.Course)
                 .WithMany()
                 .HasForeignKey(e => e.CourseId);
+
+            modelBuilder.Entity<VideoProgress>()
+                .Property(v => v.WatchPercentage)
+                .HasPrecision(5, 2);
         }
     }
 }

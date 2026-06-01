@@ -33,6 +33,12 @@ public class EnrollmentRepository : IEnrollmentRepository
                 e.CourseId == courseId);
     }
 
+    public async Task<int> GetEnrolledCourseCountAsync(Guid userId)
+    {
+        return await _context.Enrollments
+            .CountAsync(x => x.UserId == userId);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
