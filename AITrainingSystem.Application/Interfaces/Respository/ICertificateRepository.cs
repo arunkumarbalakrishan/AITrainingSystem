@@ -21,5 +21,6 @@ public interface ICertificateRepository
         Guid userId,
         Guid courseId);
 
+    Task<Certificate?> GetCertificateWithDetailsAsync(Guid certificateId);
     Task SaveChangesAsync();
 }

@@ -14,6 +14,8 @@ public interface ICertificateService
     Task<CertificateDetailsDto?> GetCertificateByIdAsync(
         Guid certificateId);
 
+    Task<byte[]> DownloadCertificatePdfAsync(Guid certificateId);
+
     Task<CertificateVerificationDto?> VerifyCertificateAsync(
         string certificateNumber);
 }

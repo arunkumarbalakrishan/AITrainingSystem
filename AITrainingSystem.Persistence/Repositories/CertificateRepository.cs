@@ -66,6 +66,14 @@ public class CertificateRepository : ICertificateRepository
                 c.UserId == userId &&
                 c.CourseId == courseId);
     }
+    public async Task<Certificate?> GetCertificateWithDetailsAsync(
+    Guid certificateId)
+    {
+        return await _context.Certificates
+            .Include(c => c.User)
+            .Include(c => c.Course)
+            .FirstOrDefaultAsync(c => c.Id == certificateId);
+    }
 
     public async Task SaveChangesAsync()
     {

@@ -8,6 +8,7 @@ using AITrainingSystem.Application.Interfaces.Respository;
 using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Application.Services;
 using AITrainingSystem.Application.Validators.Course;
+using AITrainingSystem.Infrastructure.Services;
 using AITrainingSystem.Infrastructure.Services.Auth;
 using AITrainingSystem.Infrastructure.Services.Courses;
 using AITrainingSystem.Infrastructure.Services.Dashboard;
@@ -64,6 +65,7 @@ public static class DependencyInjectionExt
         services.AddScoped<ICertificateService, CertificateService>();
 
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<ICertificatePdfService, CertificatePdfService>();
 
 
         return services;

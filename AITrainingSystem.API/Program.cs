@@ -1,7 +1,8 @@
 using AITrainingSystem.API.Extensions;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add Controllers
 builder.Services.AddControllers();

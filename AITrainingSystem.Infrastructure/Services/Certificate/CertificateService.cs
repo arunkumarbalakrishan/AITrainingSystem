@@ -8,11 +8,13 @@ namespace AITrainingSystem.Application.Services;
 public class CertificateService : ICertificateService
 {
     private readonly ICertificateRepository _certificateRepository;
+    private readonly ICertificatePdfService _certificatePdfService;
 
     public CertificateService(
-        ICertificateRepository certificateRepository)
+        ICertificateRepository certificateRepository , ICertificatePdfService certificatePdfService )
     {
         _certificateRepository = certificateRepository;
+        _certificatePdfService = certificatePdfService;
     }
 
     public async Task GenerateCertificateAsync(
@@ -97,6 +99,27 @@ public class CertificateService : ICertificateService
             IssuedDate = certificate.IssuedDate,
             IsValid = certificate.IsValid
         };
+    }
+
+    public async Task<byte[]> DownloadCertificatePdfAsync(
+    Guid certificateId)
+    {
+        var certificate =
+            await _certificateRepository
+                .GetCertificateWithDetailsAsync(certificateId);
+
+        if (certificate == null)
+            throw new Exception("Certificate not found");
+
+        var verificationUrl =
+            $"https://your-domain.com/api/certificate/verify/{certificate.CertificateNumber}";
+
+        return _certificatePdfService.GenerateCertificatePdf(
+            certificate.User.FullName,
+            certificate.Course.Title,
+            certificate.CertificateNumber,
+            certificate.IssuedDate,
+            verificationUrl);
     }
 
     private static string GenerateCertificateNumber()

@@ -44,6 +44,20 @@ public class CertificateController : ControllerBase
         return Ok(certificate);
     }
 
+    [HttpGet("{id:guid}/download")]
+    public async Task<IActionResult> DownloadCertificate(
+    Guid id)
+    {
+        var pdfBytes =
+            await _certificateService
+                .DownloadCertificatePdfAsync(id);
+
+        return File(
+            pdfBytes,
+            "application/pdf",
+            $"certificate-{id}.pdf");
+    }
+
     [AllowAnonymous]
     [HttpGet("verify/{certificateNumber}")]
     public async Task<IActionResult> VerifyCertificate(
