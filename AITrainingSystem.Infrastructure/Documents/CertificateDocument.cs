@@ -1,6 +1,7 @@
 ﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.IO;
 
 namespace AITrainingSystem.Infrastructure.Documents;
 
@@ -33,85 +34,139 @@ public class CertificateDocument : IDocument
 
     public void Compose(IDocumentContainer container)
     {
+        var logoPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "Assets",
+            "logo.png");
+
+        byte[]? logoBytes = null;
+
+        if (File.Exists(logoPath))
+        {
+            logoBytes = File.ReadAllBytes(logoPath);
+        }
+
         container.Page(page =>
         {
             page.Size(PageSizes.A4.Landscape());
-
-            page.Margin(30);
+            page.Margin(20);
 
             page.Content()
-                .Border(2)
-                .Padding(20)
+                .Border(4)
+                .Padding(40)
                 .Column(column =>
                 {
-                    column.Spacing(10);
+                    column.Spacing(15);
 
+                    // Logo
+                    //if (logoBytes != null)
+                    //{
+                    //    column.Item()
+                    //        .AlignCenter()
+                    //        .Height(80)
+                    //        .Image(logoBytes);
+                    //}
+
+                    // LMS Name
                     column.Item()
                         .AlignCenter()
-                        .Text("CERTIFICATE OF COMPLETION")
-                        .FontSize(30)
-                        .Bold();
-
-                    column.Item()
-                        .AlignCenter()
-                        .Text("This certificate is proudly presented to")
-                        .FontSize(14);
-
-                    column.Item()
-                        .AlignCenter()
-                        .Text(_studentName)
-                        .FontSize(28)
-                        .Bold();
-
-                    column.Item()
-                        .AlignCenter()
-                        .Text("for successfully completing")
-                        .FontSize(14);
-
-                    column.Item()
-                        .AlignCenter()
-                        .Text(_courseTitle)
+                        .Text("AI TRAINING SYSTEM")
                         .FontSize(22)
-                        .SemiBold();
+                        .Bold();
 
+                    column.Item()
+                        .AlignCenter()
+                        .Text("Professional Learning Platform")
+                        .FontSize(11);
+
+                    // Certificate Title
                     column.Item()
                         .PaddingTop(10)
                         .AlignCenter()
-                        .Text($"Completed on {_completionDate:dd MMMM yyyy}")
-                        .FontSize(12);
+                        .Text("CERTIFICATE OF COMPLETION")
+                        .FontSize(34)
+                        .Bold();
 
+                    // Description
+                    column.Item()
+                        .PaddingTop(10)
+                        .AlignCenter()
+                        .Text("This is to certify that")
+                        .FontSize(16);
+
+                    // Student Name
+                    column.Item()
+                        .AlignCenter()
+                        .Text(_studentName.ToUpper())
+                        .FontSize(32)
+                        .Bold();
+
+                    // Course Text
+                    column.Item()
+                        .AlignCenter()
+                        .Text("has successfully completed the course")
+                        .FontSize(15);
+
+                    // Course Name
+                    column.Item()
+                        .AlignCenter()
+                        .Text(_courseTitle.ToUpper())
+                        .FontSize(24)
+                        .Bold();
+
+                    // Issue Date
                     column.Item()
                         .PaddingTop(15)
                         .AlignCenter()
-                        .Text($"Certificate Number: {_certificateNumber}")
+                        .Text($"Issued On: {_completionDate:dd MMMM yyyy}")
                         .FontSize(12);
 
+                    // Certificate Number
                     column.Item()
-                        .PaddingTop(20);
+                        .AlignCenter()
+                        .Text($"Certificate No: {_certificateNumber}")
+                        .FontSize(12);
 
+                    // Signature Section
                     column.Item()
+                        .PaddingTop(35)
                         .Row(row =>
                         {
                             row.RelativeItem()
+                                .AlignCenter()
                                 .Column(signature =>
                                 {
                                     signature.Item()
-                                        .Text("___________________");
+                                        .Text("________________");
 
                                     signature.Item()
-                                        .Text("Instructor");
+                                        .Text("Lead Instructor");
                                 });
 
                             row.RelativeItem()
-                                .AlignRight()
+                                .AlignCenter()
                                 .Column(signature =>
                                 {
                                     signature.Item()
-                                        .Text("___________________");
+                                        .Text("________________");
 
                                     signature.Item()
-                                        .Text("Director");
+                                        .Text("Program Director");
                                 });
+                        });
+
+                    // Footer
+                    column.Item()
+                        .PaddingTop(20)
+                        .Row(row =>
+                        {
+                            row.RelativeItem()
+                                .AlignLeft()
+                                .Text("AI Training System");
+
+                            row.RelativeItem()
+                                .AlignRight()
+                                .Text("Certificate Verification Available");
                         });
                 });
         });
