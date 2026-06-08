@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Analytics;
+using AITrainingSystem.Application.DTOs.Analytics;
 using AITrainingSystem.Application.DTOs.Progress;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Respository;
@@ -11,15 +11,20 @@ namespace AITrainingSystem.Infrastructure.Services.Progress;
 public class LessonProgressService : ILessonProgressService
 {
     private readonly ILessonProgressRepository _repo;
-
     private readonly ICertificateService _certificateService;
+    private readonly IQuizRepository _quizRepo;
+    private readonly IAssessmentResultRepository _resultRepo;
 
     public LessonProgressService(
         ILessonProgressRepository repo,
-        ICertificateService certificateService)
+        ICertificateService certificateService,
+        IQuizRepository quizRepo,
+        IAssessmentResultRepository resultRepo)
     {
         _repo = repo;
         _certificateService = certificateService;
+        _quizRepo = quizRepo;
+        _resultRepo = resultRepo;
     }
 
     public async Task CompleteLessonAsync(
@@ -71,7 +76,18 @@ public class LessonProgressService : ILessonProgressService
      totalLessons > 0 &&
      completedLessons == totalLessons;
 
-        if (isCompleted)
+        // Check if final assessment is passed
+        var finalQuiz = await _quizRepo.GetFinalQuizByCourseIdAsync(courseId);
+        var hasPassedFinal = true;
+        if (finalQuiz != null)
+        {
+            var bestResult = await _resultRepo.GetBestResultAsync(userId, finalQuiz.Id);
+            hasPassedFinal = bestResult != null && bestResult.IsPassed;
+        }
+
+        var isEligibleForCertificate = isCompleted && hasPassedFinal;
+
+        if (isEligibleForCertificate)
         {
             await _certificateService.GenerateCertificateAsync(
                 userId,
@@ -85,7 +101,7 @@ public class LessonProgressService : ILessonProgressService
             TotalLessons = totalLessons,
             ProgressPercentage = Math.Round(percentage, 2),
             IsCourseCompleted = isCompleted,
-            IsCertificateEligible = isCompleted
+            IsCertificateEligible = isEligibleForCertificate
         };
     }
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -41,6 +41,23 @@ public static class AuthenticationExtensions
                             )
                         )
                 };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+                    
+                    // Allow token in query string for media streaming
+                    if (!string.IsNullOrEmpty(accessToken) && 
+                        (path.StartsWithSegments("/api/media") || path.StartsWithSegments("/api/Media")))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         return services;

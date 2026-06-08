@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +17,8 @@ namespace AITrainingSystem.Domain.Entities
         public string PasswordHash { get; set; } = string.Empty;
 
         public string Role { get; set; } = "Student";
+
+        public bool IsApprovedTrainer { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

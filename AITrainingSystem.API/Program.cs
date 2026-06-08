@@ -4,6 +4,16 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = LicenseType.Community;
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev",
+        policy => policy.WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials());
+});
+
 // Add Controllers
 builder.Services.AddControllers();
 
@@ -42,6 +52,8 @@ if (app.Environment.IsDevelopment())
 app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngularDev");
 
 app.UseAuthentication();
 

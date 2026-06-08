@@ -1,4 +1,4 @@
-﻿namespace AITrainingSystem.Domain.Entities;
+namespace AITrainingSystem.Domain.Entities;
 
 public class Lesson
 {
@@ -19,6 +19,8 @@ public class Lesson
     public int Order { get; set; }
 
     public bool IsPreviewFree { get; set; } 
+
+    public bool IsDownloadable { get; set; } = true;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

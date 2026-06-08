@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Common;
+using AITrainingSystem.Application.DTOs.Common;
 using AITrainingSystem.Application.DTOs.User;
 using AITrainingSystem.Application.DTOs.Users;
 using AITrainingSystem.Application.Interfaces.Repositories;
@@ -27,7 +27,8 @@ public class UserService : IUserService
             Id = user.Id,
             FullName = user.FullName,
             Email = user.Email,
-            Role = user.Role
+            Role = user.Role,
+            IsApprovedTrainer = user.IsApprovedTrainer
         };
     }
 
@@ -43,7 +44,8 @@ public class UserService : IUserService
             Id = user.Id,
             FullName = user.FullName,
             Email = user.Email,
-            Role = user.Role
+            Role = user.Role,
+            IsApprovedTrainer = user.IsApprovedTrainer
         };
     }
     public async Task<bool> UpdateUserAsync(Guid id, UpdateUserDto dto)
@@ -55,6 +57,10 @@ public class UserService : IUserService
 
         user.FullName = dto.FullName;
         user.Role = dto.Role;
+        if (dto.IsApprovedTrainer.HasValue)
+        {
+            user.IsApprovedTrainer = dto.IsApprovedTrainer.Value;
+        }
 
         await _userRepository.UpdateAsync(user);
 
@@ -82,7 +88,8 @@ public class UserService : IUserService
                 Id = x.Id,
                 FullName = x.FullName,
                 Email = x.Email,
-                Role = x.Role
+                Role = x.Role,
+                IsApprovedTrainer = x.IsApprovedTrainer
             }),
             TotalCount = pagedUsers.TotalCount,
             CurrentPage = pagedUsers.CurrentPage,

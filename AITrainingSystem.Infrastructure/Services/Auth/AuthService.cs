@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Auth;
+using AITrainingSystem.Application.DTOs.Auth;
 using AITrainingSystem.Application.Interfaces.Auth;
 using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Persistence.Context;
@@ -36,7 +36,8 @@ public class AuthService : IAuthService
             FullName = request.FullName,
             Email = request.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = request.Role
+            Role = request.Role,
+            IsApprovedTrainer = !request.Role.Equals("Trainer", StringComparison.OrdinalIgnoreCase)
         };
 
         await _context.Users.AddAsync(user);

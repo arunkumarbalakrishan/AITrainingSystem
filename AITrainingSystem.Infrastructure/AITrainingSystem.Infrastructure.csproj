@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\AITrainingSystem.Application\AITrainingSystem.Application.csproj" />
@@ -19,6 +19,9 @@
     <PackageReference Include="QuestPDF" Version="2026.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="10.0.0" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.308" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="Stripe.net" Version="43.21.0" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -26,5 +29,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Assets\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
