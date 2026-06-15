@@ -1,7 +1,9 @@
-﻿using AITrainingSystem.Application.DTOs.Progress;
+using AITrainingSystem.Application.DTOs.Progress;
 using AITrainingSystem.Application.Interfaces.Services;
+using AITrainingSystem.Persistence.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace AITrainingSystem.API.Controllers;
@@ -13,11 +15,13 @@ public class ProgressController : ControllerBase
 {
     private readonly ILessonProgressService _service;
     private readonly IProgressService _progressService;
+    private readonly ApplicationDbContext _context;
 
-    public ProgressController(ILessonProgressService service, IProgressService progressService)
+    public ProgressController(ILessonProgressService service, IProgressService progressService, ApplicationDbContext context)
     {
         _service = service;
         _progressService = progressService;
+        _context = context;
     }
     [Authorize]
     [HttpPost("complete")]
@@ -159,4 +163,21 @@ public class ProgressController : ControllerBase
         return Guid.Parse(userId!);
     }
 
+    [Authorize]
+    [HttpGet("course/{courseId}/completed-lessons")]
+    public async Task<IActionResult> GetCompletedLessons(Guid courseId)
+    {
+        var userId = GetUserId();
+
+        var completedLessonIds = await _context.LessonProgresses
+            .Where(lp => lp.UserId == userId && lp.IsCompleted && lp.Lesson.CourseId == courseId)
+            .Select(lp => lp.LessonId)
+            .ToListAsync();
+
+        return Ok(new
+        {
+            Success = true,
+            Data = completedLessonIds
+        });
+    }
 }

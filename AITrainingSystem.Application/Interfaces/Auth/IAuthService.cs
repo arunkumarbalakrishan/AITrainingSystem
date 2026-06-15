@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Auth;
+using AITrainingSystem.Application.DTOs.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +15,9 @@ namespace AITrainingSystem.Application.Interfaces.Auth
 
         Task<AuthResponseDto> RefreshTokenAsync(
         RefreshTokenRequestDto dto);
+
+        Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto dto);
+
+        Task<bool> ResetPasswordAsync(ResetPasswordRequestDto dto);
     }
 }

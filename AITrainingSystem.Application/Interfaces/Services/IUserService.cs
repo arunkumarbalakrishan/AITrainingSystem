@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Common;
+using AITrainingSystem.Application.DTOs.Common;
 using AITrainingSystem.Application.DTOs.User;
 using AITrainingSystem.Application.DTOs.Users;
 
@@ -11,5 +11,6 @@ public interface IUserService
     Task<UserResponseDto?> GetUserByIdAsync(Guid id);
 
     Task<bool> UpdateUserAsync(Guid id, UpdateUserDto dto);
+    Task<bool> UpdateProfileAsync(Guid userId, UpdateProfileDto dto);
     Task<bool> DeleteUserAsync(Guid id);
 }

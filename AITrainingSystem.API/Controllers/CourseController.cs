@@ -1,7 +1,10 @@
-﻿using AITrainingSystem.Application.DTOs.Course;
+using AITrainingSystem.Application.Common.Models;
+using AITrainingSystem.Application.DTOs.Course;
 using AITrainingSystem.Application.Interfaces.Services;
+using AITrainingSystem.Persistence.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace AITrainingSystem.API.Controllers;
@@ -11,10 +14,12 @@ namespace AITrainingSystem.API.Controllers;
 public class CourseController : ControllerBase
 {
     private readonly ICourseService _courseService;
+    private readonly ApplicationDbContext _context;
 
-    public CourseController(ICourseService courseService)
+    public CourseController(ICourseService courseService, ApplicationDbContext context)
     {
         _courseService = courseService;
+        _context = context;
     }
 
     [HttpPost]
@@ -114,5 +119,52 @@ public class CourseController : ControllerBase
             Success = true,
             Data = result
         });
+    }
+
+    [Authorize]
+    [HttpGet("enrolled")]
+    public async Task<IActionResult> GetEnrolledCourses()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim))
+        {
+            return Unauthorized(new
+            {
+                Success = false,
+                Message = "User not authenticated"
+            });
+        }
+
+        if (!Guid.TryParse(userIdClaim, out var userId))
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Message = "Invalid user ID"
+            });
+        }
+
+        var enrolledCourses = await _context.Enrollments
+            .Where(e => e.UserId == userId)
+            .Select(e => e.Course)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(x => new CourseResponseDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                Price = x.Price,
+                DurationInHours = x.DurationInHours,
+                ThumbnailUrl = x.ThumbnailUrl,
+                IsPublished = x.IsPublished,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(ApiResponse<IEnumerable<CourseResponseDto>>.SuccessResponse(
+            enrolledCourses,
+            "Enrolled courses fetched successfully"
+        ));
     }
 }

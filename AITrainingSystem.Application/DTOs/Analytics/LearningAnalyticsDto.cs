@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,4 +13,8 @@ public class LearningAnalyticsDto
     public int CompletedCourses { get; set; }
 
     public int InProgressCourses { get; set; }
+
+    public int CertificatesEarned { get; set; }
+
+    public int TotalHours { get; set; }
 }

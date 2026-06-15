@@ -97,4 +97,26 @@ public class UserService : IUserService
         };
     }
 
+    public async Task<bool> UpdateProfileAsync(Guid userId, UpdateProfileDto dto)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            return false;
+
+        user.FullName = dto.FullName;
+
+        if (!string.IsNullOrEmpty(dto.NewPassword))
+        {
+            if (string.IsNullOrEmpty(dto.CurrentPassword) || 
+                !BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+            {
+                throw new System.Exception("Current password verification failed.");
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        }
+
+        await _userRepository.UpdateAsync(user);
+        return true;
+    }
 }

@@ -1,5 +1,6 @@
 using AITrainingSystem.Application.DTOs.Auth;
 using AITrainingSystem.Application.Interfaces.Auth;
+using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +11,13 @@ public class AuthService : IAuthService
 {
     private readonly ApplicationDbContext _context;
     private readonly JwtService _jwtService;
+    private readonly INotificationService _notificationService;
 
-    public AuthService(ApplicationDbContext context, JwtService jwtService)
+    public AuthService(ApplicationDbContext context, JwtService jwtService, INotificationService notificationService)
     {
         _context = context;
         _jwtService = jwtService;
+        _notificationService = notificationService;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
@@ -137,5 +140,52 @@ public class AuthService : IAuthService
             Role = existingToken.User.Role,
             Message = "Token refreshed successfully"
         };
+    }
+
+    public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email);
+        if (user == null)
+        {
+            return false;
+        }
+
+        var random = new Random();
+        var token = random.Next(100000, 999999).ToString();
+
+        user.PasswordResetToken = token;
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+        await _context.SaveChangesAsync();
+
+        var subject = "AITrainingSystem Password Reset Request";
+        var body = $"<h3>Password Reset Request</h3><p>Your password reset code is: <strong>{token}</strong></p><p>This code will expire in 1 hour.</p>";
+        await _notificationService.SendEmailAsync(user.Email, subject, body);
+
+        Console.WriteLine($"[PASSWORD_RESET_TOKEN] Email: {user.Email}, Token: {token}");
+
+        return true;
+    }
+
+    public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto dto)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email);
+        if (user == null)
+            return false;
+
+        if (string.IsNullOrEmpty(user.PasswordResetToken) || 
+            user.PasswordResetToken != dto.Token || 
+            !user.PasswordResetTokenExpiry.HasValue || 
+            user.PasswordResetTokenExpiry.Value < DateTime.UtcNow)
+        {
+            return false;
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiry = null;
+
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

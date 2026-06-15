@@ -35,15 +35,15 @@ namespace AITrainingSystem.Infrastructure.Documents
 
         public void Compose(IDocumentContainer container)
         {
-            var logoPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "Assets",
-                "logo.png");
-
             var bgPath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
                 "Assets",
                 "certificate_bg.png");
+
+            var logoPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Assets",
+                "logo.png");
 
             byte[]? logoBytes = null;
             if (File.Exists(logoPath))
@@ -60,97 +60,121 @@ namespace AITrainingSystem.Infrastructure.Documents
             container.Page(page =>
             {
                 page.Size(PageSizes.A4.Landscape());
-                page.Margin(0); // Zero margin so the background stretches completely
+                page.Margin(0);
 
                 page.Content().Layers(layers =>
                 {
-                    // Layer 1: Background Template Image
+                    // Background Layer (User's border image)
                     if (bgBytes != null)
                     {
-                        layers.Layer().Image(bgBytes);
+                        layers.Layer().Image(bgBytes).FitArea();
                     }
                     else
                     {
-                        // Fallback background color if image not found
-                        layers.Layer().Background(Colors.Grey.Lighten4);
+                        // Fallback classic border if the image is not found
+                        layers.Layer().Padding(30).Border(4).BorderColor("#1e3a8a");
+                        layers.Layer().Padding(36).Border(1).BorderColor("#eab308");
+                        layers.Layer().Background(Colors.White);
                     }
 
-                    // Layer 2: Certificate Typography Content
-                    layers.PrimaryLayer()
-                        .Padding(50)
-                        .Column(column =>
+                    // Foreground Content Layer
+                    // We use padding to ensure text stays inside the decorative border
+                    layers.PrimaryLayer().Padding(90).Column(col =>
+                    {
+                        col.Spacing(20);
+
+                        // Header
+                        col.Item().AlignCenter().Text("CERTIFICATE OF COMPLETION")
+                            .FontFamily("Times New Roman")
+                            .FontSize(42)
+                            .Bold()
+                            .FontColor("#0f172a");
+
+                        col.Item().PaddingTop(15).AlignCenter().Text("THIS IS PROUDLY PRESENTED TO")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken2)
+                            .SemiBold();
+
+                        // Student Name
+                        col.Item().PaddingTop(10).AlignCenter().Text(_studentName)
+                            .FontFamily("Times New Roman")
+                            .FontSize(46)
+                            .Italic()
+                            .FontColor(Colors.Black);
+
+                        // Divider Line
+                        col.Item().AlignCenter().Container().Width(400).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+
+                        // Course Text
+                        col.Item().PaddingTop(10).AlignCenter().Text("For successfully completing the course:")
+                            .FontSize(14)
+                            .FontColor(Colors.Grey.Darken2);
+
+                        col.Item().AlignCenter().Text($"\"{_courseTitle}\"")
+                            .FontSize(24)
+                            .Bold()
+                            .FontColor("#0f172a");
+
+                        col.Item().PaddingTop(5).AlignCenter().Text("Demonstrating outstanding dedication and mastery of the subject matter.")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
+
+                        // Spacer to push signatures down
+                        col.Item().ExtendVertical();
+
+                        // Signatures & Footer
+                        col.Item().PaddingBottom(10).Row(footerRow =>
                         {
-                            column.Spacing(15);
-
-                            // Top Header: logo & LMS branding
-                            column.Item().Row(row =>
+                            // Left: Date
+                            footerRow.RelativeItem().AlignCenter().Column(c =>
                             {
-                                if (logoBytes != null)
-                                {
-                                    row.AutoItem().Height(40).Image(logoBytes);
-                                    row.AutoItem().PaddingLeft(10).PaddingRight(10).AlignMiddle().Text("|").FontSize(20).FontColor(Colors.Grey.Lighten1);
-                                }
+                                c.Item().AlignCenter().Text(_completionDate.ToString("MMMM dd, yyyy"))
+                                    .FontSize(14)
+                                    .FontColor(Colors.Black)
+                                    .Bold();
                                 
-                                row.RelativeItem().AlignMiddle().Column(headerCol =>
+                                c.Item().PaddingTop(5).Container().Width(180).LineHorizontal(1).LineColor(Colors.Black);
+                                
+                                c.Item().PaddingTop(2).AlignCenter().Text("DATE")
+                                    .FontSize(10)
+                                    .FontColor(Colors.Grey.Darken2)
+                                    .Bold();
+                            });
+
+                            // Center: Gold Badge Placeholder
+                            footerRow.ConstantItem(100).AlignCenter().AlignMiddle().Column(badge => 
+                            {
+                                badge.Item().Width(70).Height(70).Background("#eab308").AlignCenter().AlignMiddle().Column(c => 
                                 {
-                                    headerCol.Item().Text("AI TRAINING SYSTEM").FontSize(14).Bold().FontColor("#0B4F6C");
-                                    headerCol.Item().Text("Training Services").FontSize(10).FontColor(Colors.Grey.Darken2);
+                                    c.Item().AlignCenter().Text("★★★").FontSize(10).FontColor(Colors.White);
+                                    c.Item().AlignCenter().Text(DateTime.Now.Year.ToString()).FontSize(14).Bold().FontColor(Colors.White);
+                                    c.Item().AlignCenter().Text("AWARDED").FontSize(8).FontColor(Colors.White);
                                 });
                             });
 
-                            // Main body (relative widths prevent overlap with the right side graphics)
-                            column.Item().PaddingTop(25).Row(row =>
+                            // Right: Signature
+                            footerRow.RelativeItem().AlignCenter().Column(c =>
                             {
-                                row.RelativeItem(7).Column(textCol =>
-                                {
-                                    textCol.Spacing(15);
-
-                                    textCol.Item().Text("Course Completion Certificate")
-                                        .FontSize(24)
-                                        .FontColor("#0B4F6C")
-                                        .Medium();
-
-                                    textCol.Item().PaddingTop(5).Text(_studentName)
-                                        .FontSize(32)
-                                        .Bold()
-                                        .FontColor(Colors.Black);
-
-                                    textCol.Item().Text("has successfully completed the self-paced training course")
-                                        .FontSize(13)
-                                        .FontColor(Colors.Grey.Darken2);
-
-                                    textCol.Item().Text(_courseTitle)
-                                        .FontSize(26)
-                                        .Bold()
-                                        .FontColor("#1A5F7A");
-
-                                    // Signature block
-                                    textCol.Item().PaddingTop(35).Row(sigRow =>
-                                    {
-                                        sigRow.RelativeItem().Column(sigCol =>
-                                        {
-                                            sigCol.Item().Width(150).Height(30).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                                            sigCol.Item().PaddingTop(5).Text("DIRECTOR, TRAINING SERVICES").FontSize(8).Bold().FontColor(Colors.Grey.Darken2);
-                                        });
-
-                                        sigRow.RelativeItem().Column(dateCol =>
-                                        {
-                                            dateCol.Item().PaddingTop(20).Text(_completionDate.ToString("dd MMMM yyyy")).FontSize(12).FontColor(Colors.Black);
-                                        });
-                                    });
-                                });
-
-                                // Margin spacer to push text leftward of background graphic
-                                row.RelativeItem(3);
-                            });
-
-                            // Footer: ID & Verification link at the bottom
-                            column.Item().AlignBottom().Row(footerRow =>
-                            {
-                                footerRow.RelativeItem().Text($"Certificate ID: {_certificateNumber}").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                footerRow.RelativeItem().AlignRight().Text($"Verification: {_verificationUrl}").FontSize(8).FontColor(Colors.Grey.Darken1);
+                                c.Item().AlignCenter().Text("Jane Kane")
+                                    .FontFamily("Times New Roman")
+                                    .FontSize(26)
+                                    .Italic()
+                                    .FontColor(Colors.Black);
+                                
+                                c.Item().Container().Width(180).LineHorizontal(1).LineColor(Colors.Black);
+                                
+                                c.Item().PaddingTop(2).AlignCenter().Text("TRAINING DIRECTOR")
+                                    .FontSize(10)
+                                    .FontColor(Colors.Grey.Darken2)
+                                    .Bold();
                             });
                         });
+                        
+                        // Verification ID at the very bottom
+                        col.Item().AlignCenter().Text($"Verification ID: {_certificateNumber}")
+                            .FontSize(9)
+                            .FontColor(Colors.Grey.Medium);
+                    });
                 });
             });
         }

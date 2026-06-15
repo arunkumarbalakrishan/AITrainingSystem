@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Lesson;
+using AITrainingSystem.Application.DTOs.Lesson;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -18,9 +18,6 @@ namespace AITrainingSystem.Application.Validators.Lesson
             RuleFor(x => x.Title)
                 .NotEmpty()
                 .MaximumLength(200);
-
-            RuleFor(x => x.VideoUrl)
-                .NotEmpty();
 
             RuleFor(x => x.DurationInMinutes)
                 .GreaterThan(0);

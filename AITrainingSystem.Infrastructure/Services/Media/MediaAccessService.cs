@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.Features.Media.DTOs;
+using AITrainingSystem.Application.Features.Media.DTOs;
 using AITrainingSystem.Application.Features.Media.Interfaces;
 using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Domain.Enums;
@@ -30,16 +30,16 @@ public class MediaAccessService : IMediaAccessService
             throw new Exception("Lesson not found.");
         }
 
-        // STEP 2 — Validate Enrollment
+        // STEP 2 — Validate Enrollment or Free Preview
         var isEnrolled = await _context.Enrollments
             .AnyAsync(x =>
                 x.CourseId == lesson.CourseId &&
                 x.UserId == userId);
 
-        if (!isEnrolled)
+        if (!isEnrolled && !lesson.IsPreviewFree)
         {
             throw new UnauthorizedAccessException(
-                "You are not enrolled in this course.");
+                "You are not enrolled in this course and this lesson is not a free preview.");
         }
 
         // STEP 3 — Get Video Media
@@ -77,16 +77,16 @@ public class MediaAccessService : IMediaAccessService
             throw new Exception("Lesson not found.");
         }
 
-        // STEP 2 — Validate Enrollment
+        // STEP 2 — Validate Enrollment or Free Preview
         var isEnrolled = await _context.Enrollments
             .AnyAsync(x =>
                 x.CourseId == lesson.CourseId &&
                 x.UserId == userId);
 
-        if (!isEnrolled)
+        if (!isEnrolled && !lesson.IsPreviewFree)
         {
             throw new UnauthorizedAccessException(
-                "You are not enrolled in this course.");
+                "You are not enrolled in this course and this lesson is not a free preview.");
         }
 
         // STEP 3 — Get PDF Media

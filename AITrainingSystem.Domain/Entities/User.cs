@@ -16,6 +16,10 @@ namespace AITrainingSystem.Domain.Entities
 
         public string PasswordHash { get; set; } = string.Empty;
 
+        public string? PasswordResetToken { get; set; }
+
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         public string Role { get; set; } = "Student";
 
         public bool IsApprovedTrainer { get; set; } = false;

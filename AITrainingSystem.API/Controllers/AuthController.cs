@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.Common.Models;
+using AITrainingSystem.Application.Common.Models;
 using AITrainingSystem.Application.DTOs.Auth;
 using AITrainingSystem.Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -54,5 +54,27 @@ public class AuthController : ControllerBase
         }
 
         return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Token refreshed successfully"));
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
+    {
+        var sent = await _authService.ForgotPasswordAsync(dto);
+        if (!sent)
+        {
+            return BadRequest(ApiResponse<object>.FailResponse("Email not found."));
+        }
+        return Ok(ApiResponse<object>.SuccessResponse(null, "Password reset code sent."));
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
+    {
+        var reset = await _authService.ResetPasswordAsync(dto);
+        if (!reset)
+        {
+            return BadRequest(ApiResponse<object>.FailResponse("Invalid reset token, or token expired."));
+        }
+        return Ok(ApiResponse<object>.SuccessResponse(null, "Password has been reset successfully."));
     }
 }

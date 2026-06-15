@@ -4,6 +4,7 @@ using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Respository;
 using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Domain.Entities;
+using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace AITrainingSystem.Infrastructure.Services.Progress;
@@ -14,17 +15,20 @@ public class LessonProgressService : ILessonProgressService
     private readonly ICertificateService _certificateService;
     private readonly IQuizRepository _quizRepo;
     private readonly IAssessmentResultRepository _resultRepo;
+    private readonly ApplicationDbContext _context;
 
     public LessonProgressService(
         ILessonProgressRepository repo,
         ICertificateService certificateService,
         IQuizRepository quizRepo,
-        IAssessmentResultRepository resultRepo)
+        IAssessmentResultRepository resultRepo,
+        ApplicationDbContext context)
     {
         _repo = repo;
         _certificateService = certificateService;
         _quizRepo = quizRepo;
         _resultRepo = resultRepo;
+        _context = context;
     }
 
     public async Task CompleteLessonAsync(
@@ -94,6 +98,11 @@ public class LessonProgressService : ILessonProgressService
                 courseId);
         }
 
+        var hasVideoProgress = await _context.VideoProgresses
+            .AnyAsync(vp => vp.UserId == userId && vp.LastWatchedSecond > 0 && vp.Lesson.CourseId == courseId);
+
+        var hasStarted = completedLessons > 0 || hasVideoProgress;
+
         return new CourseProgressDto
         {
             CourseId = courseId,
@@ -101,7 +110,8 @@ public class LessonProgressService : ILessonProgressService
             TotalLessons = totalLessons,
             ProgressPercentage = Math.Round(percentage, 2),
             IsCourseCompleted = isCompleted,
-            IsCertificateEligible = isEligibleForCertificate
+            IsCertificateEligible = isEligibleForCertificate,
+            HasStarted = hasStarted
         };
     }
 

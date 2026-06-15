@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.Common.Models;
+using AITrainingSystem.Application.Common.Models;
 using AITrainingSystem.Application.DTOs.Common;
 using AITrainingSystem.Application.DTOs.User;
 using AITrainingSystem.Application.DTOs.Users;
@@ -37,6 +37,31 @@ public class UsersController : ControllerBase
             return NotFound();
 
         return Ok(ApiResponse<UserResponseDto>.SuccessResponse(user, "User retrieved successfully"));
+    }
+
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null)
+            return Unauthorized();
+
+        var userId = Guid.Parse(userIdClaim.Value);
+
+        try
+        {
+            var updated = await _userService.UpdateProfileAsync(userId, dto);
+            if (!updated)
+                return NotFound();
+
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Profile updated successfully"));
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.FailResponse(ex.Message));
+        }
     }
 
     [Authorize(Roles = "Admin")]
