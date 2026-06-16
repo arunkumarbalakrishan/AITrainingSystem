@@ -4,6 +4,8 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = LicenseType.Community;
 
+var env = builder.Environment;
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
@@ -14,7 +16,11 @@ builder.Services.AddCors(options =>
                         .AllowCredentials());
 });
 
-if (builder.Environment.IsDevelopment())
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+if (env.IsDevelopment())
 {
     builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 }
