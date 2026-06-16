@@ -14,6 +14,11 @@ builder.Services.AddCors(options =>
                         .AllowCredentials());
 });
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+}
+
 // Add Controllers
 builder.Services.AddControllers();
 
