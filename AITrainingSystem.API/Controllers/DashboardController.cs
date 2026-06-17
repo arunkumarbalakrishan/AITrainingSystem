@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.Interfaces.DashboardService;
+using AITrainingSystem.Application.Interfaces.DashboardService;
 using AITrainingSystem.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +29,14 @@ public class DashboardController : ControllerBase
             await _dashboardService
                 .GetAnalyticsAsync(userId);
 
+        return Ok(result);
+    }
+
+    [HttpGet("admin/reports")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAdminReports()
+    {
+        var result = await _dashboardService.GetAdminReportsAsync();
         return Ok(result);
     }
 

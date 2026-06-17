@@ -25,6 +25,8 @@ using AITrainingSystem.Persistence.Repositories;
 using FluentValidation;
 
 
+using AITrainingSystem.Infrastructure.Services.LiveClasses;
+
 namespace AITrainingSystem.API.Extensions;
 
 public static class DependencyInjectionExt
@@ -85,6 +87,7 @@ public static class DependencyInjectionExt
         services.AddScoped<ILessonNoteService, LessonNoteService>();
         services.AddScoped<INotificationService, SmtpNotificationService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
+        services.AddScoped<ILiveClassService, LiveClassService>();
 
         // Storage registration
         services.AddScoped<LocalStorageService>();

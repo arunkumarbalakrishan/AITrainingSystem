@@ -2,6 +2,9 @@ using AITrainingSystem.API.Extensions;
 using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+#if DEBUG
+builder.Environment.EnvironmentName = "Development";
+#endif
 QuestPDF.Settings.License = LicenseType.Community;
 
 var env = builder.Environment;
@@ -17,8 +20,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 if (env.IsDevelopment())
 {

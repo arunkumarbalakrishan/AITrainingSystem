@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Analytics;
+using AITrainingSystem.Application.DTOs.Analytics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +11,6 @@ namespace AITrainingSystem.Application.Interfaces.DashboardService
     {
         Task<LearningAnalyticsDto> GetAnalyticsAsync(Guid userId);
         Task<List<RecentlyCompletedCourseDto>> GetRecentlyCompletedCoursesAsync(Guid userId);
+        Task<AdminReportsDto> GetAdminReportsAsync();
     }
 }

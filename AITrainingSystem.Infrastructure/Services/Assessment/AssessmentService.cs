@@ -201,23 +201,6 @@ namespace AITrainingSystem.Infrastructure.Services.Assessment
                 {
                     _logger.LogInformation("Generating certificate. User {UserId} completed all lessons ({Completed}/{Total}) and passed final assessment.", userId, completedCount, totalLessons);
                     await _certificateService.GenerateCertificateAsync(userId, quiz.CourseId);
-
-                    // Send notification alerts
-                    await _notificationService.CreateInAppNotificationAsync(
-                        userId,
-                        "Certificate Generated",
-                        $"Congratulations! You passed the final assessment and completed all lessons. Your certificate has been issued."
-                    );
-
-                    var user = await _userRepo.GetByIdAsync(userId);
-                    if (user != null)
-                    {
-                        await _notificationService.SendEmailAsync(
-                            user.Email,
-                            "Certificate Issued!",
-                            $"Dear {user.FullName},<br/><br/>Congratulations! Your certificate is now ready for download."
-                        );
-                    }
                 }
             }
 

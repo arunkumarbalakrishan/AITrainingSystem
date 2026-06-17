@@ -25,6 +25,8 @@ namespace AITrainingSystem.Infrastructure.Services.AI
         private readonly ILogger<OpenAIService> _logger;
         private readonly ICourseRepository _courseRepository;
         private readonly ILessonProgressRepository _lessonProgressRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationService _notificationService;
 
         private readonly string _apiKey;
         private readonly string _model;
@@ -34,13 +36,17 @@ namespace AITrainingSystem.Infrastructure.Services.AI
             IConfiguration configuration, 
             ILogger<OpenAIService> logger,
             ICourseRepository courseRepository,
-            ILessonProgressRepository lessonProgressRepository)
+            ILessonProgressRepository lessonProgressRepository,
+            IUserRepository userRepository,
+            INotificationService notificationService)
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _logger = logger;
             _courseRepository = courseRepository;
             _lessonProgressRepository = lessonProgressRepository;
+            _userRepository = userRepository;
+            _notificationService = notificationService;
 
             _apiKey = _configuration["OpenAI:ApiKey"] ?? string.Empty;
             _model = _configuration["OpenAI:Model"] ?? "gpt-3.5-turbo";
@@ -318,6 +324,7 @@ namespace AITrainingSystem.Infrastructure.Services.AI
                     SuggestedCourses = suggested
                 };
 
+                await SendResumeAnalysisEmailAsync(userId, result);
                 return ApiResponse<ResumeAnalysisResultDto>.SuccessResponse(result, "Resume analysis completed.");
             }
             catch (Exception ex)
@@ -331,7 +338,45 @@ namespace AITrainingSystem.Infrastructure.Services.AI
                     SuggestedCourses = new List<string> { "Advanced ASP.NET Core API", "Enterprise Cloud Architecture" }
                 };
 
+                await SendResumeAnalysisEmailAsync(userId, result);
                 return ApiResponse<ResumeAnalysisResultDto>.SuccessResponse(result, "Resume analysis completed.");
+            }
+        }
+
+        private async Task SendResumeAnalysisEmailAsync(Guid userId, ResumeAnalysisResultDto result)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user != null)
+                {
+                    var subject = "AI Resume Analysis Completed";
+                    var body = $"<h3>Hello {user.FullName},</h3>" +
+                               $"<p>Your resume has been analyzed successfully. Here is the feedback from our AI system:</p>" +
+                               $"<p><strong>Match Score:</strong> {result.MatchScore}%</p>" +
+                               $"<p><strong>Critique:</strong> {result.Critique}</p>" +
+                               $"<p><strong>Skills & Strengths:</strong></p>" +
+                               $"<ul>" +
+                               string.Join("", result.SkillsStrengths.Select(s => $"<li>{s}</li>")) +
+                               $"</ul>" +
+                               $"<p><strong>Suggested Courses:</strong></p>" +
+                               $"<ul>" +
+                               string.Join("", result.SuggestedCourses.Select(c => $"<li>{c}</li>")) +
+                               $"</ul>" +
+                               $"<br/><p>Keep learning and building!</p>" +
+                               $"<p>Best regards,<br/>AITraining System</p>";
+
+                    await _notificationService.SendEmailAsync(user.Email, subject, body);
+                    await _notificationService.CreateInAppNotificationAsync(
+                        userId,
+                        "Resume Analysis Complete",
+                        $"AI has completed analyzing your resume. Critique: {(result.Critique.Length > 100 ? result.Critique.Substring(0, 97) + "..." : result.Critique)}"
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to send resume analysis email/notification.");
             }
         }
 

@@ -215,10 +215,12 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
         {
             _logger.LogInformation("Processing Mock Payment confirmation for user {UserId} and course {CourseId}", userId, courseId);
             
-            // Check if user is already enrolled
             try
             {
                 await _enrollmentService.EnrollUserAsync(userId, courseId);
+
+                var course = await _courseRepo.GetByIdAsync(courseId);
+                var amount = course != null ? course.Price : 0;
 
                 // Create mock payment record if not exists
                 var payment = new Payment
@@ -226,7 +228,7 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
                     Id = Guid.NewGuid(),
                     UserId = userId,
                     CourseId = courseId,
-                    Amount = 0,
+                    Amount = amount,
                     Currency = "USD",
                     Status = "Completed",
                     StripeSessionId = $"mock_success_{Guid.NewGuid()}",
