@@ -1,5 +1,6 @@
-﻿using AITrainingSystem.Application.Features.Media.DTOs;
+using AITrainingSystem.Application.Features.Media.DTOs;
 using AITrainingSystem.Application.Features.Media.Interfaces;
+using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +10,12 @@ namespace AITrainingSystem.Application.Features.Media.Services;
 public class MediaService : IMediaService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IStorageService _storageService;
 
-    public MediaService(ApplicationDbContext context)
+    public MediaService(ApplicationDbContext context, IStorageService storageService)
     {
         _context = context;
+        _storageService = storageService;
     }
 
     public async Task<MediaResponseDto> UploadAsync(
@@ -72,11 +75,6 @@ public class MediaService : IMediaService
             throw new Exception("Lesson not found.");
         }
 
-        // Generate unique filename
-        var uniqueFileName =
-            $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-
-
         //// Decide folder
         const string videoFolder = "videos";
         const string pdfFolder = "pdfs";
@@ -85,27 +83,11 @@ public class MediaService : IMediaService
             ? videoFolder
             : pdfFolder;
 
-        // Full physical path
-        var uploadsFolder = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "Storage",
-            folder);
-
-        // Create folder if not exists
-        if (!Directory.Exists(uploadsFolder))
+        // Save file using Storage Service
+        string storagePath;
+        using (var stream = file.OpenReadStream())
         {
-            Directory.CreateDirectory(uploadsFolder);
-        }
-
-        // Full file path
-        var filePath = Path.Combine(
-            uploadsFolder,
-            uniqueFileName);
-
-        // Save file physically
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
+            storagePath = await _storageService.UploadFileAsync(stream, file.FileName, folder, file.ContentType);
         }
 
         // Create Media entity
@@ -113,8 +95,8 @@ public class MediaService : IMediaService
         {
             Id = Guid.NewGuid(),
             FileName = file.FileName,
-            StoredFileName = uniqueFileName,
-            FilePath = $"{folder}/{uniqueFileName}",
+            StoredFileName = Path.GetFileName(storagePath),
+            FilePath = storagePath,
             FileType = file.ContentType,
             FileSize = file.Length,
             LessonId = request.LessonId,

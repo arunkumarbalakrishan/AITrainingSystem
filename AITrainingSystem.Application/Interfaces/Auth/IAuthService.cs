@@ -19,5 +19,7 @@ namespace AITrainingSystem.Application.Interfaces.Auth
         Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto dto);
 
         Task<bool> ResetPasswordAsync(ResetPasswordRequestDto dto);
+
+        Task<AuthResponseDto> GoogleLoginAsync(GoogleLoginRequestDto dto);
     }
 }

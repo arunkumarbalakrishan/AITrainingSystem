@@ -20,6 +20,7 @@ using AITrainingSystem.Infrastructure.Services.Notes;
 using AITrainingSystem.Infrastructure.Services.Payments;
 using AITrainingSystem.Infrastructure.Services.Progress;
 using AITrainingSystem.Infrastructure.Services.Storage;
+using AITrainingSystem.Infrastructure.Services.Search;
 using AITrainingSystem.Infrastructure.Services.users;
 using AITrainingSystem.Persistence.Repositories;
 using FluentValidation;
@@ -105,6 +106,9 @@ public static class DependencyInjectionExt
 
         // AI Services with HttpClient
         services.AddHttpClient<IAIService, OpenAIService>();
+
+        // Search registration
+        services.AddScoped<ICourseSearchService, CourseSearchService>();
 
         return services;
     }

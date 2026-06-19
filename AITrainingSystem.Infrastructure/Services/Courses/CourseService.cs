@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.Common.Models;
+using AITrainingSystem.Application.Common.Models;
 using AITrainingSystem.Application.DTOs.Course;
 using AITrainingSystem.Application.DTOs.Lesson;
 using AITrainingSystem.Application.Interfaces.Repositories;

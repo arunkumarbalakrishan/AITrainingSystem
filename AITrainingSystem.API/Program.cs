@@ -13,7 +13,7 @@ var env = builder.Environment;
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDev",
-        policy => policy.WithOrigins("http://localhost:4200")
+        policy => policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
@@ -25,7 +25,7 @@ builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
 
 if (env.IsDevelopment())
 {
-    builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+    builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 }
 
 // Add Controllers

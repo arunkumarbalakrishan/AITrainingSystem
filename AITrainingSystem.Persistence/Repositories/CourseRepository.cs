@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Course;
+using AITrainingSystem.Application.DTOs.Course;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Domain.Entities;
 using AITrainingSystem.Persistence.Context;

@@ -1,5 +1,6 @@
-﻿using AITrainingSystem.Application.Features.Media.DTOs;
+using AITrainingSystem.Application.Features.Media.DTOs;
 using AITrainingSystem.Application.Features.Media.Interfaces;
+using AITrainingSystem.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,12 +13,14 @@ public class MediaController : ControllerBase
 {
     private readonly IMediaAccessService _mediaAccessService;
     private readonly IMediaService _mediaService;
+    private readonly IStorageService _storageService;
     private readonly ILogger<MediaController> _logger;
 
-    public MediaController(IMediaAccessService mediaAccessService, IMediaService mediaService, ILogger<MediaController> logger)
+    public MediaController(IMediaAccessService mediaAccessService, IMediaService mediaService, IStorageService storageService, ILogger<MediaController> logger)
     {
         _mediaAccessService = mediaAccessService;
         _mediaService = mediaService;
+        _storageService = storageService;
         _logger = logger;
     }
 
@@ -48,28 +51,17 @@ public class MediaController : ControllerBase
                 lessonId,
                 userId);
 
-
-        // STEP 3 — Build Full Physical Path
-        var fullPath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "Storage",
-            result.FilePath);
-
-        // STEP 4 — Validate File Exists
-        if (!System.IO.File.Exists(fullPath))
+        // STEP 3 & 4 — Stream Video using Storage Service
+        Stream stream;
+        try
         {
-            _logger.LogWarning("Video file missing for Lesson {LessonId}", lessonId);
+            stream = await _storageService.GetFileStreamAsync(result.FilePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Video file missing or inaccessible for Lesson {LessonId}", lessonId);
             return NotFound("Video file not found.");
         }
-
-        // STEP 5 — Stream Video Securely
-        var stream = new FileStream(
-         fullPath,
-         FileMode.Open,
-         FileAccess.Read,
-         FileShare.Read,
-         1024 * 64,
-         useAsync: true);
 
         _logger.LogInformation("Video streamed successfully for Lesson {LessonId}", lessonId);
 
@@ -95,27 +87,17 @@ public class MediaController : ControllerBase
                 lessonId,
                 userId);
 
-        // STEP 3 — Build Physical Path
-        var fullPath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "Storage",
-            result.FilePath);
-
-        // STEP 4 — Check File Exists
-        if (!System.IO.File.Exists(fullPath))
+        // STEP 3 & 4 — Stream PDF using Storage Service
+        Stream stream;
+        try
         {
-            _logger.LogWarning("PDF file missing for Lesson {LessonId}", lessonId);
+            stream = await _storageService.GetFileStreamAsync(result.FilePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "PDF file missing or inaccessible for Lesson {LessonId}", lessonId);
             return NotFound("PDF file not found.");
         }
-
-        // STEP 5 — Return Secure PDF
-        var stream = new FileStream(
-            fullPath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            1024 * 64,
-            useAsync: true);
 
         _logger.LogInformation("PDF streamed successfully for Lesson {LessonId}", lessonId);
 

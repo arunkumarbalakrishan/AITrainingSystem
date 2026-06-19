@@ -77,4 +77,20 @@ public class AuthController : ControllerBase
         }
         return Ok(ApiResponse<object>.SuccessResponse(null, "Password has been reset successfully."));
     }
+
+    [HttpPost("google-login")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto dto)
+    {
+        var result = await _authService.GoogleLoginAsync(dto);
+
+        if (string.IsNullOrEmpty(result.AccessToken))
+        {
+            return Unauthorized(new
+            {
+                message = result.Message
+            });
+        }
+
+        return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Login successful"));
+    }
 }
