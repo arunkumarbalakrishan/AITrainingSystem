@@ -10,11 +10,12 @@ namespace AITrainingSystem.Infrastructure.Services.Courses;
 public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
-    
+    private readonly ICacheService _cacheService;
 
-    public CourseService(ICourseRepository courseRepository)
+    public CourseService(ICourseRepository courseRepository, ICacheService cacheService)
     {
         _courseRepository = courseRepository;
+        _cacheService = cacheService;
     }
 
     public async Task<ApiResponse<CourseResponseDto>> CreateAsync(CreateCourseDto dto)
@@ -44,6 +45,8 @@ public class CourseService : ICourseService
             CreatedAt = createdCourse.CreatedAt
         };
 
+        await _cacheService.RemoveAsync("all_courses");
+
         return ApiResponse<CourseResponseDto>.SuccessResponse(
             response,
             "Course created successfully"
@@ -52,6 +55,17 @@ public class CourseService : ICourseService
 
     public async Task<ApiResponse<IEnumerable<CourseResponseDto>>> GetAllAsync()
     {
+        var cacheKey = "all_courses";
+        var cachedCourses = await _cacheService.GetAsync<IEnumerable<CourseResponseDto>>(cacheKey);
+
+        if (cachedCourses != null)
+        {
+            return ApiResponse<IEnumerable<CourseResponseDto>>.SuccessResponse(
+                cachedCourses,
+                "Courses fetched successfully from cache"
+            );
+        }
+
         var courses = await _courseRepository.GetAllAsync();
 
         var response = courses.Select(x => new CourseResponseDto
@@ -64,7 +78,9 @@ public class CourseService : ICourseService
             ThumbnailUrl = x.ThumbnailUrl,
             IsPublished = x.IsPublished,
             CreatedAt = x.CreatedAt
-        });
+        }).ToList();
+
+        await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30));
 
         return ApiResponse<IEnumerable<CourseResponseDto>>.SuccessResponse(
             response,
@@ -74,6 +90,17 @@ public class CourseService : ICourseService
 
     public async Task<ApiResponse<CourseResponseDto>> GetByIdAsync(Guid id)
     {
+        var cacheKey = $"course_{id}";
+        var cachedCourse = await _cacheService.GetAsync<CourseResponseDto>(cacheKey);
+
+        if (cachedCourse != null)
+        {
+            return ApiResponse<CourseResponseDto>.SuccessResponse(
+                cachedCourse,
+                "Course fetched successfully from cache"
+            );
+        }
+
         var course = await _courseRepository.GetByIdAsync(id);
 
         if (course is null)
@@ -92,6 +119,8 @@ public class CourseService : ICourseService
             IsPublished = course.IsPublished,
             CreatedAt = course.CreatedAt
         };
+
+        await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30));
 
         return ApiResponse<CourseResponseDto>.SuccessResponse(
             response,
@@ -130,6 +159,9 @@ public class CourseService : ICourseService
             CreatedAt = course.CreatedAt
         };
 
+        await _cacheService.RemoveAsync("all_courses");
+        await _cacheService.RemoveAsync($"course_{id}");
+
         return ApiResponse<CourseResponseDto>.SuccessResponse(
             response,
             "Course updated successfully"
@@ -146,6 +178,9 @@ public class CourseService : ICourseService
         }
 
         await _courseRepository.DeleteAsync(course);
+
+        await _cacheService.RemoveAsync("all_courses");
+        await _cacheService.RemoveAsync($"course_{id}");
 
         return ApiResponse<string>.SuccessResponse(
             "Course deleted successfully"

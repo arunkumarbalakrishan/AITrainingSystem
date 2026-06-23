@@ -30,6 +30,7 @@ if (env.IsDevelopment())
 
 // Add Controllers
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 
 // Database Configuration
@@ -74,5 +75,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<AITrainingSystem.API.Hubs.NotificationHub>("/hubs/notifications");
 
 app.Run();

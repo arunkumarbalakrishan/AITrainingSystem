@@ -1,0 +1,41 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'AITrainingSystem/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'AITrainingSystem/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore AITrainingSystem/AITrainingSystem.API/AITrainingSystem.API.csproj
+
+    - name: Build
+      run: dotnet build AITrainingSystem/AITrainingSystem.API/AITrainingSystem.API.csproj --no-restore -c Release
+
+    - name: Test
+      run: dotnet test AITrainingSystem/AITrainingSystem.API/AITrainingSystem.API.csproj --no-build --verbosity normal
+
+    - name: Publish
+      run: dotnet publish AITrainingSystem/AITrainingSystem.API/AITrainingSystem.API.csproj -c Release -o ./publish
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-publish
+        path: ./publish

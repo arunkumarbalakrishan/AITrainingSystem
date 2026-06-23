@@ -84,6 +84,12 @@ public static class DependencyInjectionExt
         services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         // New Services
+        services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<ILessonProgressService, LessonProgressService>();
+        services.AddScoped<IEnrollmentService, EnrollmentService>();
+        services.AddScoped<IRealTimeNotificationService, AITrainingSystem.API.Services.RealTimeNotificationService>();
+
+        // Domain Services
         services.AddScoped<IAssessmentService, AssessmentService>();
         services.AddScoped<ILessonNoteService, LessonNoteService>();
         services.AddScoped<INotificationService, SmtpNotificationService>();
@@ -107,8 +113,9 @@ public static class DependencyInjectionExt
         // AI Services with HttpClient
         services.AddHttpClient<IAIService, OpenAIService>();
 
-        // Search registration
-        services.AddScoped<ICourseSearchService, CourseSearchService>();
+        // Cache Services
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, AITrainingSystem.Infrastructure.Services.Cache.MemoryCacheService>();
 
         return services;
     }

@@ -19,15 +19,18 @@ namespace AITrainingSystem.Infrastructure.Services.Email
         private readonly INotificationRepository _repo;
         private readonly IConfiguration _configuration;
         private readonly ILogger<SmtpNotificationService> _logger;
+        private readonly IRealTimeNotificationService _realTimeNotificationService;
 
         public SmtpNotificationService(
             INotificationRepository repo, 
             IConfiguration configuration, 
-            ILogger<SmtpNotificationService> logger)
+            ILogger<SmtpNotificationService> logger,
+            IRealTimeNotificationService realTimeNotificationService)
         {
             _repo = repo;
             _configuration = configuration;
             _logger = logger;
+            _realTimeNotificationService = realTimeNotificationService;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -89,7 +92,7 @@ namespace AITrainingSystem.Infrastructure.Services.Email
             await _repo.CreateAsync(notification);
             await _repo.SaveChangesAsync();
 
-            return new NotificationDto
+            var dto = new NotificationDto
             {
                 Id = notification.Id,
                 UserId = notification.UserId,
@@ -98,6 +101,17 @@ namespace AITrainingSystem.Infrastructure.Services.Email
                 IsRead = notification.IsRead,
                 CreatedAt = notification.CreatedAt
             };
+
+            try 
+            {
+                await _realTimeNotificationService.SendToUserAsync(userId, dto);
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to broadcast real-time notification to user {UserId}", userId);
+            }
+
+            return dto;
         }
 
         public async Task<ApiResponse<IEnumerable<NotificationDto>>> GetNotificationsForUserAsync(Guid userId)
