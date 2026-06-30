@@ -31,6 +31,8 @@ if (env.IsDevelopment())
     builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 }
 
+builder.Configuration.AddEnvironmentVariables();
+
 // Add Controllers
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
