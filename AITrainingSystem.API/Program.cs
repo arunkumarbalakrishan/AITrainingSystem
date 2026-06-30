@@ -13,7 +13,10 @@ var env = builder.Environment;
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDev",
-        policy => policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+        policy => policy.SetIsOriginAllowed(origin => {
+                            var host = new Uri(origin).Host;
+                            return host == "localhost" || host.EndsWith(".vercel.app") || host.EndsWith("somee.com");
+                         })
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
