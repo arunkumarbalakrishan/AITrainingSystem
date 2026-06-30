@@ -82,4 +82,16 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<AITrainingSystem.API.Hubs.NotificationHub>("/hubs/notifications");
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var maskedConnectionString = string.Join(";", connectionString?.Split(';').Select(p => {
+    var parts = p.Split('=');
+    if (parts.Length > 0 && (parts[0].Trim().Equals("pwd", StringComparison.OrdinalIgnoreCase) || 
+                             parts[0].Trim().Equals("password", StringComparison.OrdinalIgnoreCase) || 
+                             parts[0].Trim().Equals("user id", StringComparison.OrdinalIgnoreCase))) {
+        return parts[0] + "=***";
+    }
+    return p;
+}) ?? new string[0]);
+Console.WriteLine($"[DEBUG] Connection String Loaded: {maskedConnectionString}");
+
 app.Run();
