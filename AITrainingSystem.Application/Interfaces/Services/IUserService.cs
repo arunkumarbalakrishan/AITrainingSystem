@@ -13,4 +13,5 @@ public interface IUserService
     Task<bool> UpdateUserAsync(Guid id, UpdateUserDto dto);
     Task<bool> UpdateProfileAsync(Guid userId, UpdateProfileDto dto);
     Task<bool> DeleteUserAsync(Guid id);
+    Task<UserResponseDto?> CreateUserAsync(CreateUserDto dto);
 }

@@ -3,6 +3,7 @@ using AITrainingSystem.Application.DTOs.User;
 using AITrainingSystem.Application.DTOs.Users;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Services;
+using AITrainingSystem.Domain.Entities;
 
 namespace AITrainingSystem.Infrastructure.Services.users;
 
@@ -118,5 +119,35 @@ public class UserService : IUserService
 
         await _userRepository.UpdateAsync(user);
         return true;
+    }
+
+    public async Task<UserResponseDto?> CreateUserAsync(CreateUserDto dto)
+    {
+        var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
+        if (existingUser != null)
+        {
+            throw new System.Exception("Email already exists.");
+        }
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = dto.FullName,
+            Email = dto.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Role = dto.Role,
+            IsApprovedTrainer = !dto.Role.Equals("Trainer", StringComparison.OrdinalIgnoreCase)
+        };
+
+        await _userRepository.AddAsync(user);
+
+        return new UserResponseDto
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role,
+            IsApprovedTrainer = user.IsApprovedTrainer
+        };
     }
 }

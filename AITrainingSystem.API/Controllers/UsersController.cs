@@ -64,6 +64,24 @@ public class UsersController : ControllerBase
         }
     }
 
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+    {
+        try
+        {
+            var user = await _userService.CreateUserAsync(dto);
+            if (user == null)
+                return BadRequest(ApiResponse<object>.FailResponse("Failed to create user."));
+
+            return Ok(ApiResponse<UserResponseDto>.SuccessResponse(user, "User created successfully"));
+        }
+        catch (System.Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.FailResponse(ex.Message));
+        }
+    }
+
     [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllUsers(

@@ -29,7 +29,8 @@ namespace AITrainingSystem.Infrastructure.Services.Storage
 
         public Task DeleteFileAsync(string fileKey)
         {
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "Storage", fileKey);
+            var key = CleanFileKey(fileKey);
+            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "Storage", key);
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
@@ -39,10 +40,11 @@ namespace AITrainingSystem.Infrastructure.Services.Storage
 
         public Task<Stream> GetFileStreamAsync(string fileKey)
         {
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "Storage", fileKey);
+            var key = CleanFileKey(fileKey);
+            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "Storage", key);
             if (!File.Exists(fullPath))
             {
-                throw new FileNotFoundException("Local storage file not found.", fileKey);
+                throw new FileNotFoundException("Local storage file not found.", fullPath);
             }
 
             Stream stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 64, useAsync: true);
@@ -51,8 +53,20 @@ namespace AITrainingSystem.Infrastructure.Services.Storage
 
         public Task<string> GetSignedUrlAsync(string fileKey, double expiryMinutes = 60)
         {
+            var key = CleanFileKey(fileKey);
             // For local storage, we fallback to streaming endpoint URLs
-            return Task.FromResult($"/api/media/stream/{fileKey}");
+            return Task.FromResult($"/api/media/stream/{key}");
+        }
+
+        private string CleanFileKey(string fileKey)
+        {
+            if (string.IsNullOrEmpty(fileKey)) return string.Empty;
+            var key = fileKey.TrimStart('/', '\\');
+            if (key.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+            {
+                key = key.Substring("uploads/".Length);
+            }
+            return key;
         }
     }
 }

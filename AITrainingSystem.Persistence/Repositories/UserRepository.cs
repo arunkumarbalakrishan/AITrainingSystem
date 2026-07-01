@@ -1,4 +1,4 @@
-﻿using AITrainingSystem.Application.DTOs.Common;
+using AITrainingSystem.Application.DTOs.Common;
 using AITrainingSystem.Application.DTOs.Users;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Domain.Entities;
@@ -26,9 +26,22 @@ namespace AITrainingSystem.Persistence.Repositories;
             return await _context.Users
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(x => x.Email == email);
+        }
+
         public async Task<List<User>> GetAllAsync()
         {
             return await _context.Users.ToListAsync();
+        }
+
+        public async Task AddAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
         }
 
     public async Task UpdateAsync(User user)
