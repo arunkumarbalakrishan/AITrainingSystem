@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mail;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AITrainingSystem.Application.Common.Models;
 using AITrainingSystem.Application.DTOs.Notification;
@@ -35,13 +39,52 @@ namespace AITrainingSystem.Infrastructure.Services.Email
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
+            var resendApiKey = _configuration["Resend:ApiKey"];
+            if (!string.IsNullOrEmpty(resendApiKey))
+            {
+                _logger.LogInformation("Attempting to send email to {ToEmail} using Resend HTTPS API", toEmail);
+                try
+                {
+                    using var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", resendApiKey);
+
+                    var fromAddress = _configuration["Resend:FromAddress"] ?? "onboarding@resend.dev";
+
+                    var payload = new
+                    {
+                        from = fromAddress,
+                        to = new[] { toEmail },
+                        subject = subject,
+                        html = body
+                    };
+
+                    var json = JsonSerializer.Serialize(payload);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var response = await httpClient.PostAsync("https://api.resend.com/emails", content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        throw new Exception($"Resend API returned status code {response.StatusCode}: {errorContent}");
+                    }
+
+                    _logger.LogInformation("Email sent successfully via Resend API to {ToEmail}", toEmail);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send email via Resend API to {ToEmail}.", toEmail);
+                    throw;
+                }
+            }
+
             var host = _configuration["Smtp:Host"];
             var portStr = _configuration["Smtp:Port"];
             var username = _configuration["Smtp:Username"];
             var password = _configuration["Smtp:Password"];
-            var fromAddress = _configuration["Smtp:FromAddress"] ?? "no-reply@aitrainingsystem.com";
+            var fromAddressSmtp = _configuration["Smtp:FromAddress"] ?? "no-reply@aitrainingsystem.com";
 
-            _logger.LogInformation("Attempting to send email to {ToEmail} with subject '{Subject}'", toEmail, subject);
+            _logger.LogInformation("Attempting to send email to {ToEmail} with subject '{Subject}' using SMTP", toEmail, subject);
 
             if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(username))
             {
@@ -54,7 +97,7 @@ namespace AITrainingSystem.Infrastructure.Services.Email
                 int port = int.TryParse(portStr, out var p) ? p : 587;
                 using var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(fromAddress),
+                    From = new MailAddress(fromAddressSmtp),
                     Subject = subject,
                     Body = body,
                     IsBodyHtml = true
