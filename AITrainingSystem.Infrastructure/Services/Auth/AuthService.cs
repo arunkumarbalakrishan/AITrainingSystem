@@ -148,7 +148,8 @@ public class AuthService : IAuthService
 
     public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequestDto dto)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email);
+        var emailNormal = dto.Email.Trim().ToLower();
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == emailNormal);
         if (user == null)
         {
             return false;
@@ -173,12 +174,14 @@ public class AuthService : IAuthService
 
     public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto dto)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email);
+        var emailNormal = dto.Email.Trim().ToLower();
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == emailNormal);
         if (user == null)
             return false;
 
+        var tokenInput = dto.Token.Trim();
         if (string.IsNullOrEmpty(user.PasswordResetToken) || 
-            user.PasswordResetToken != dto.Token || 
+            user.PasswordResetToken.Trim() != tokenInput || 
             !user.PasswordResetTokenExpiry.HasValue || 
             user.PasswordResetTokenExpiry.Value < DateTime.UtcNow)
         {
