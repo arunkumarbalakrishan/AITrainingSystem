@@ -73,7 +73,8 @@ namespace AITrainingSystem.Infrastructure.Services.Email
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email to {ToEmail}. Falling back to logs.", toEmail);
+                _logger.LogError(ex, "Failed to send email to {ToEmail}.", toEmail);
+                throw;
             }
         }
 
