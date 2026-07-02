@@ -78,6 +78,54 @@ namespace AITrainingSystem.Infrastructure.Services.Email
                 }
             }
 
+            var brevoApiKey = _configuration["Brevo:ApiKey"];
+            if (!string.IsNullOrEmpty(brevoApiKey))
+            {
+                _logger.LogInformation("Attempting to send email to {ToEmail} using Brevo HTTPS API", toEmail);
+                try
+                {
+                    using var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.Add("api-key", brevoApiKey);
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var fromAddress = _configuration["Brevo:FromAddress"] ?? "no-reply@aitrainingsystem.com";
+                    var fromName = _configuration["Brevo:FromName"] ?? "AI Training System";
+
+                    var payload = new
+                    {
+                        sender = new
+                        {
+                            name = fromName,
+                            email = fromAddress
+                        },
+                        to = new[]
+                        {
+                            new { email = toEmail }
+                        },
+                        subject = subject,
+                        htmlContent = body
+                    };
+
+                    var json = JsonSerializer.Serialize(payload);
+                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var response = await httpClient.PostAsync("https://api.brevo.com/v3/smtp/email", content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        throw new Exception($"Brevo API returned status code {response.StatusCode}: {errorContent}");
+                    }
+
+                    _logger.LogInformation("Email sent successfully via Brevo API to {ToEmail}", toEmail);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send email via Brevo API to {ToEmail}.", toEmail);
+                    throw;
+                }
+            }
+
             var host = _configuration["Smtp:Host"];
             var portStr = _configuration["Smtp:Port"];
             var username = _configuration["Smtp:Username"];
