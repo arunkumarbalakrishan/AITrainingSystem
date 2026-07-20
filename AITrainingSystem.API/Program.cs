@@ -28,7 +28,7 @@ builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
 
 if (env.IsDevelopment())
 {
-    builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+    builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 }
 
 builder.Configuration.AddEnvironmentVariables();
