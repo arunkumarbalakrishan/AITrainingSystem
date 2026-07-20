@@ -17,4 +17,6 @@ public class LearningAnalyticsDto
     public int CertificatesEarned { get; set; }
 
     public int TotalHours { get; set; }
+
+    public int StreakDays { get; set; }
 }

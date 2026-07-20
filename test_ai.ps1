@@ -1,4 +1,4 @@
-$baseUrl = "https://localhost:7114/api"
+$baseUrl = "https://localhost:7113/api"
 
 # Disable SSL validation for local development
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}

@@ -136,4 +136,38 @@ public class MediaController : ControllerBase
             message = "Video progress saved."
         });
     }
+
+    [HttpGet("stream/{*key}")]
+    public async Task<IActionResult> StreamMedia(string key)
+    {
+        try
+        {
+            var stream = await _storageService.GetFileStreamAsync(key);
+            
+            var ext = Path.GetExtension(key).ToLowerInvariant();
+            var contentType = ext switch
+            {
+                ".mp4" => "video/mp4",
+                ".webm" => "video/webm",
+                ".ogg" => "video/ogg",
+                ".pdf" => "application/pdf",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
+
+            return File(stream, contentType, enableRangeProcessing: true);
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound("Media file not found.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error streaming media with key {Key}", key);
+            return StatusCode(500, "Internal server error.");
+        }
+    }
 }

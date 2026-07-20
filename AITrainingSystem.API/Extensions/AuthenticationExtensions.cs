@@ -49,9 +49,10 @@ public static class AuthenticationExtensions
                     var accessToken = context.Request.Query["access_token"];
                     var path = context.HttpContext.Request.Path;
                     
-                    // Allow token in query string for media streaming
                     if (!string.IsNullOrEmpty(accessToken) && 
-                        (path.StartsWithSegments("/api/media") || path.StartsWithSegments("/api/Media")))
+                        (path.StartsWithSegments("/api/media") || 
+                         path.StartsWithSegments("/api/Media") || 
+                         path.StartsWithSegments("/hubs")))
                     {
                         context.Token = accessToken;
                     }
