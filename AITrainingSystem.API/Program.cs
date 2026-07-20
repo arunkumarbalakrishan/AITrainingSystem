@@ -1,5 +1,6 @@
 using AITrainingSystem.API.Extensions;
 using QuestPDF.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 #if DEBUG
@@ -94,4 +95,19 @@ var maskedConnectionString = string.Join(";", connectionString?.Split(';').Selec
 }) ?? new string[0]);
 Console.WriteLine($"[DEBUG] Connection String Loaded: {maskedConnectionString}");
 
-app.Run();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AITrainingSystem.Persistence.Context.ApplicationDbContext>();
+        context.Database.Migrate();
+        Console.WriteLine("[DEBUG] Database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[DEBUG] Error migrating database: {ex.Message}");
+    }
+}
+
+app.Run();
