@@ -24,12 +24,9 @@ builder.Services.AddCors(options =>
 
 builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true)
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
-if (env.IsDevelopment())
-{
-    builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-}
 
 builder.Configuration.AddEnvironmentVariables();
 
