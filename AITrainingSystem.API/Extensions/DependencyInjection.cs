@@ -82,6 +82,7 @@ public static class DependencyInjectionExt
         services.AddScoped<ILessonNoteRepository, LessonNoteRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IEmailLogRepository, EmailLogRepository>();
 
         // New Services
         services.AddScoped<ICourseService, CourseService>();
@@ -95,6 +96,7 @@ public static class DependencyInjectionExt
         services.AddScoped<INotificationService, SmtpNotificationService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<ILiveClassService, LiveClassService>();
+        services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 
         // Storage registration
         services.AddScoped<LocalStorageService>();
@@ -110,12 +112,19 @@ public static class DependencyInjectionExt
             return sp.GetRequiredService<CloudStorageService>();
         });
 
+        // Live Class Streaming Services
+        services.AddScoped<IJitsiMeetingService, JitsiMeetingService>();
+        services.AddHttpClient<IZoomApiService, ZoomApiService>();
+
         // AI Services with HttpClient
         services.AddHttpClient<IAIService, OpenAIService>();
 
         // Cache Services
         services.AddMemoryCache();
         services.AddScoped<ICacheService, AITrainingSystem.Infrastructure.Services.Cache.MemoryCacheService>();
+
+        // Background Queue Hosted Service
+        services.AddHostedService<AITrainingSystem.Infrastructure.Services.Background.EmailQueueBackgroundService>();
 
         return services;
     }

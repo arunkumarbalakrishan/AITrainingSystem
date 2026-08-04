@@ -1,0 +1,85 @@
+<!-- BANNER GREETING -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td align="center" style="padding-bottom: 20px;">
+            <!-- Ribbon Award Icon -->
+            <div
+                style="background-color: #FEF3C7; color: #D97706; font-size: 28px; line-height: 56px; width: 56px; height: 56px; border-radius: 50%; display: inline-block; text-align: center; border: 2px solid #FCD34D;">
+                🏆
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td align="left" style="font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+            <h2 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 10px 0; text-align: center;">
+                Your Certificate is Ready! 🎓
+            </h2>
+            <p style="font-size: 15px; line-height: 24px; color: #4B5563; margin: 0 0 25px 0; text-align: center;">
+                Congratulations, {{StudentName}}! You have successfully passed all examinations and completed the
+                coursework.
+            </p>
+        </td>
+    </tr>
+
+    <!-- CERTIFICATE CARD -->
+    <tr>
+        <td align="left"
+            style="padding: 24px; background-color: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <!-- Course Card Title & Info -->
+                    <td valign="top" style="font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+                        <span
+                            style="background-color: #FEF3C7; color: #D97706; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; margin-bottom: 10px;">
+                            Graduation Completed
+                        </span>
+                        <h4 style="font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 16px 0;">
+                            {{CourseName}}
+                        </h4>
+
+                        <!-- Key-value Details -->
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                            style="font-size: 13px; line-height: 22px; color: #4B5563;">
+                            <tr>
+                                <td width="130" style="padding-bottom: 8px; font-weight: 600; color: #111827;">Student:
+                                </td>
+                                <td style="padding-bottom: 8px; color: #4B5563;">{{StudentName}}</td>
+                            </tr>
+                            <tr>
+                                <td width="130" style="padding-bottom: 8px; font-weight: 600; color: #111827;">
+                                    Completion Date:</td>
+                                <td style="padding-bottom: 8px; color: #4B5563;">{{CompletionDate}}</td>
+                            </tr>
+                            <tr>
+                                <td width="130" style="padding-bottom: 8px; font-weight: 600; color: #111827;">
+                                    Assessment Grade:</td>
+                                <td style="padding-bottom: 8px; color: #10B981; font-weight: bold;">{{Score}}</td>
+                            </tr>
+                            <tr>
+                                <td width="130" style="font-weight: 600; color: #111827;">Certificate ID:</td>
+                                <td style="font-family: monospace; color: #4B5563;">{{CertificateId}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <!-- CTA BUTTON SECTION -->
+    <tr>
+        <td align="center" style="padding: 35px 0 10px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" class="button-wrapper">
+                <tr>
+                    <td align="center" bgcolor="#9FEF00" style="border-radius: 8px;" class="mobile-button">
+                        <a href="{{ActionButtonUrl}}" target="_blank"
+                            style="padding: 14px 28px; display: inline-block; font-size: 15px; font-weight: 700; color: #111827; text-decoration: none; font-family: 'Inter', -apple-system, system-ui, sans-serif; background-color: #9FEF00; border-radius: 8px; border: 1px solid #9FEF00; letter-spacing: 0.5px;"
+                            class="mobile-button">
+                            {{ActionButtonText}}
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

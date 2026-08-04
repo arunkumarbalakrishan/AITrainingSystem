@@ -37,6 +37,7 @@ namespace AITrainingSystem.Persistence.Context
         public DbSet<Payment> Payments { get; set; }
         public DbSet<LiveClass> LiveClasses { get; set; }
         public DbSet<MockInterviewSession> MockInterviewSessions { get; set; }
+        public DbSet<EmailLog> EmailLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

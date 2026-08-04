@@ -17,19 +17,25 @@ public class CertificateService : ICertificateService
     private readonly IUserRepository _userRepository;
     private readonly ICourseRepository _courseRepository;
     private readonly INotificationService _notificationService;
+    private readonly IEmailTemplateService _emailTemplateService;
+    private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
     public CertificateService(
         ICertificateRepository certificateRepository, 
         ICertificatePdfService certificatePdfService,
         IUserRepository userRepository,
         ICourseRepository courseRepository,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IEmailTemplateService emailTemplateService,
+        Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
         _certificateRepository = certificateRepository;
         _certificatePdfService = certificatePdfService;
         _userRepository = userRepository;
         _courseRepository = courseRepository;
         _notificationService = notificationService;
+        _emailTemplateService = emailTemplateService;
+        _configuration = configuration;
     }
 
     public async Task GenerateCertificateAsync(
@@ -69,16 +75,21 @@ public class CertificateService : ICertificateService
                     $"Congratulations! Your certificate for '{course.Title}' has been successfully issued."
                 );
 
-                var subject = $"Certificate Awarded: {course.Title}!";
-                var body = $"<h3>Congratulations {user.FullName}!</h3>" +
-                           $"<p>You have successfully completed all requirements for the course <strong>{course.Title}</strong>.</p>" +
-                           $"<p>Your official Certificate of Completion has been generated.</p>" +
-                           $"<p><strong>Certificate Number:</strong> {certificate.CertificateNumber}</p>" +
-                           $"<p><strong>Issued Date:</strong> {certificate.IssuedDate:MMMM dd, yyyy}</p>" +
-                           $"<br/><p>You can download your PDF certificate directly from your AITraining dashboard under 'Certificates'.</p>" +
-                           $"<p>Best regards,<br/>AITraining System</p>";
+                var clientUrl = _configuration["ClientUrl"] ?? "http://localhost:4200";
+                var placeholders = new Dictionary<string, string>
+                {
+                    { "StudentName", user.FullName },
+                    { "CourseName", course.Title },
+                    { "CompletionDate", certificate.IssuedDate.ToString("MMMM dd, yyyy") },
+                    { "Score", "100%" },
+                    { "CertificateId", certificate.CertificateNumber },
+                    { "ActionButtonText", "View Certificate" },
+                    { "ActionButtonUrl", $"{clientUrl.TrimEnd('/')}/profile/certificates" },
+                    { "SupportEmail", "support@aitrainingsystem.com" },
+                    { "SupportPhone", "+1 (555) 019-2834" }
+                };
 
-                await _notificationService.SendEmailAsync(user.Email, subject, body);
+                await _emailTemplateService.QueueEmailAsync(user.Email, $"Certificate Awarded: {course.Title}!", "CertificateIssued", placeholders);
             }
         }
         catch (Exception)

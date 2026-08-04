@@ -48,27 +48,34 @@ public class DashboardService : IDashboardService
             .SumAsync();
 
         // Calculate active learning streak dynamically
-        var lessonDates = await _context.LessonProgresses
+        var lessonDates = (await _context.LessonProgresses
             .Where(lp => lp.UserId == userId && lp.IsCompleted)
-            .Select(lp => lp.CompletedAt.Date)
-            .Distinct()
-            .ToListAsync();
+            .Select(lp => lp.CompletedAt)
+            .ToListAsync())
+            .Select(d => d.Date);
 
-        var interviewDates = await _context.MockInterviewSessions
+        var interviewDates = (await _context.MockInterviewSessions
             .Where(mis => mis.UserId == userId)
-            .Select(mis => mis.CreatedAt.Date)
-            .Distinct()
-            .ToListAsync();
+            .Select(mis => mis.CreatedAt)
+            .ToListAsync())
+            .Select(d => d.Date);
 
-        var videoDates = await _context.VideoProgresses
+        var videoDates = (await _context.VideoProgresses
             .Where(vp => vp.UserId == userId)
-            .Select(vp => vp.UpdatedAt.Date)
-            .Distinct()
-            .ToListAsync();
+            .Select(vp => vp.UpdatedAt)
+            .ToListAsync())
+            .Select(d => d.Date);
+
+        var assessmentDates = (await _context.AssessmentResults
+            .Where(ar => ar.UserId == userId)
+            .Select(ar => ar.SubmittedAt)
+            .ToListAsync())
+            .Select(d => d.Date);
 
         var allDates = lessonDates
             .Union(interviewDates)
             .Union(videoDates)
+            .Union(assessmentDates)
             .Distinct()
             .OrderByDescending(d => d)
             .ToList();
@@ -92,10 +99,6 @@ public class DashboardService : IDashboardService
             }
         }
 
-        // If streak is 0, we can default it to 12 as a mock fallback for Arun if we want,
-        // but it's cleaner to return the real calculated streak, or fallback to 12 if no active dates exist yet.
-        int finalStreak = streak > 0 ? streak : 12;
-
         return new LearningAnalyticsDto
         {
             TotalCoursesEnrolled = totalCourses,
@@ -103,7 +106,7 @@ public class DashboardService : IDashboardService
             InProgressCourses = totalCourses - completedCourses,
             CertificatesEarned = certificatesCount,
             TotalHours = totalHours,
-            StreakDays = finalStreak
+            StreakDays = streak
         };
     }
     public async Task<List<RecentlyCompletedCourseDto>>

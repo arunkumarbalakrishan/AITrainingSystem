@@ -16,12 +16,21 @@ public class AuthService : IAuthService
     private readonly ApplicationDbContext _context;
     private readonly JwtService _jwtService;
     private readonly INotificationService _notificationService;
+    private readonly IEmailTemplateService _emailTemplateService;
+    private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
-    public AuthService(ApplicationDbContext context, JwtService jwtService, INotificationService notificationService)
+    public AuthService(
+        ApplicationDbContext context, 
+        JwtService jwtService, 
+        INotificationService notificationService,
+        IEmailTemplateService emailTemplateService,
+        Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
         _context = context;
         _jwtService = jwtService;
         _notificationService = notificationService;
+        _emailTemplateService = emailTemplateService;
+        _configuration = configuration;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
@@ -163,9 +172,19 @@ public class AuthService : IAuthService
 
         await _context.SaveChangesAsync();
 
-        var subject = "AITrainingSystem Password Reset Request";
-        var body = $"<h3>Password Reset Request</h3><p>Your password reset code is: <strong>{token}</strong></p><p>This code will expire in 1 hour.</p>";
-        await _notificationService.SendEmailAsync(user.Email, subject, body);
+        var clientUrl = _configuration["ClientUrl"] ?? "http://localhost:4200";
+        var placeholders = new Dictionary<string, string>
+        {
+            { "StudentName", user.FullName },
+            { "ResetToken", token },
+            { "ActionButtonText", "Reset Password" },
+            { "ActionButtonUrl", $"{clientUrl.TrimEnd('/')}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={token}" },
+            { "ExpirationTime", "1 hour" },
+            { "SupportEmail", "support@aitrainingsystem.com" },
+            { "SupportPhone", "+1 (555) 019-2834" }
+        };
+
+        await _emailTemplateService.QueueEmailAsync(user.Email, "Reset Your Account Password", "PasswordReset", placeholders);
 
         Console.WriteLine($"[PASSWORD_RESET_TOKEN] Email: {user.Email}, Token: {token}");
 

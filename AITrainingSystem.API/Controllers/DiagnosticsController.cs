@@ -224,6 +224,39 @@ public class DiagnosticsController : ControllerBase
 
         return Ok(report);
     }
+
+    [HttpPost("test-email")]
+    public async Task<IActionResult> TestQueueEmail([FromQuery] string email, [FromQuery] string template)
+    {
+        try
+        {
+            var emailTemplateService = HttpContext.RequestServices.GetRequiredService<IEmailTemplateService>();
+            var placeholders = new Dictionary<string, string>
+            {
+                { "StudentName", "Test Student" },
+                { "CourseName", "Diagnostics Training Course" },
+                { "InstructorName", "Dr. John Doe" },
+                { "CourseDuration", "12h" },
+                { "EnrollmentDate", DateTime.UtcNow.ToString("yyyy-MM-dd") },
+                { "TicketId", "1002" },
+                { "SupportMessageText", "This is a diagnostic ticket reply test. Our system is fully operational." },
+                { "OldEmailAddress", "old@example.com" },
+                { "NewEmailAddress", "new@example.com" },
+                { "ChangeDate", DateTime.UtcNow.ToString("g") },
+                { "ActionButtonText", "Verify Link" },
+                { "ActionButtonUrl", "https://google.com" },
+                { "SupportEmail", "support@aitrainingsystem.com" },
+                { "SupportPhone", "+1 (555) 019-2834" }
+            };
+            
+            await emailTemplateService.QueueEmailAsync(email ?? "user@example.com", $"Diagnostic Test: {template}", template ?? "Welcome", placeholders);
+            return Ok(new { Success = true, Message = $"Email template '{template}' queued for '{email}'." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Success = false, Message = ex.Message });
+        }
+    }
 }
 
 public class DiagnosticReport

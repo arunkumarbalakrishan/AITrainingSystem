@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Online Training System</title>
+    <style>
+        /* Client-specific Styles */
+        #outlook a {
+            padding: 0;
+        }
+
+        body {
+            width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F5F7FA;
+            color: #2C2C2C;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        a img {
+            border: none;
+        }
+
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0px !important;
+            }
+
+            .responsive-image {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            .mobile-padding {
+                padding: 20px !important;
+            }
+
+            .button-wrapper {
+                width: 100% !important;
+                display: block !important;
+            }
+
+            .mobile-button {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                text-align: center !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    style="margin: 0; padding: 0; background-color: #F5F7FA; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F5F7FA"
+        style="background-color: #F5F7FA; table-layout: fixed;">
+        <tr>
+            <td align="center" valign="top" style="padding: 40px 10px 40px 10px;" class="mobile-padding">
+                <!-- Center Box Container -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600"
+                    style="background-color: #FFFFFF; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);"
+                    class="email-container">
+
+                    <!-- BRAND HEADER -->
+                    <tr>
+                        <td align="center" valign="top" bgcolor="#111827"
+                            style="padding: 30px 40px; background-color: #111827; border-bottom: 3px solid #9FEF00;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <!-- Logo centered representation -->
+                                        <div
+                                            style="background-color: #9FEF00; color: #111827; font-weight: 800; font-size: 24px; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; display: inline-block; text-align: center; margin-bottom: 12px; font-family: 'Outfit', -apple-system, system-ui, sans-serif; box-shadow: 0 2px 5px rgba(159,239,0,0.3);">
+                                            AI
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <h1
+                                            style="color: #FFFFFF; font-size: 20px; font-weight: 700; margin: 0; letter-spacing: 0.5px; font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+                                            AI Online Training System
+                                        </h1>
+                                        <p
+                                            style="color: #9FEF00; font-size: 11px; font-weight: 600; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+                                            Learn &bull; Practice &bull; Get Certified
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- DYNAMIC CONTENT BODY -->
+                    <tr>
+                        <td align="left" valign="top" style="padding: 40px; background-color: #FFFFFF;"
+                            class="mobile-padding">
+                            {{EmailBody}}
+                        </td>
+                    </tr>
+
+                    <!-- SOCIALS / DIVIDER -->
+                    <tr>
+                        <td align="center" valign="top" style="padding: 0 40px 25px 40px; background-color: #FFFFFF;"
+                            class="mobile-padding">
+                            <hr style="border: 0; border-top: 1px solid #E5E7EB; margin: 0 0 25px 0;" />
+
+                            <!-- Help & Support Banner -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F9FAFB"
+                                style="background-color: #F9FAFB; border-radius: 8px; border: 1px solid #F3F4F6;">
+                                <tr>
+                                    <td style="padding: 20px; text-align: center;">
+                                        <p
+                                            style="margin: 0; font-size: 14px; color: #111827; font-weight: 600; font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+                                            Need help or have questions?
+                                        </p>
+                                        <p
+                                            style="margin: 4px 0 0 0; font-size: 13px; color: #6B7280; font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+                                            Reach out at <a href="mailto:{{SupportEmail}}"
+                                                style="color: #111827; text-decoration: underline; font-weight: 500;">{{SupportEmail}}</a>
+                                            or call <span
+                                                style="color: #111827; font-weight: 500;">{{SupportPhone}}</span>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- INSTITUTION FOOTER -->
+                    <tr>
+                        <td align="center" valign="top" bgcolor="#111827"
+                            style="padding: 35px 40px; background-color: #111827; color: #9CA3AF; text-align: center;"
+                            class="mobile-padding">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center"
+                                        style="font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 12px; line-height: 18px;">
+                                        <p style="margin: 0 0 8px 0; font-weight: 600; color: #FFFFFF;">
+                                            AI Online Training System Dashboard
+                                        </p>
+                                        <p style="margin: 0 0 16px 0;">
+                                            An advanced interactive online environment powered by Artificial
+                                            Intelligence.
+                                        </p>
+                                        <p style="margin: 0 0 16px 0; font-size: 11px;">
+                                            You received this email because you are registered or subscribed on our
+                                            system.<br />
+                                            If you wish to change your notification preferences, you can edit them in
+                                            your profile.
+                                        </p>
+                                        <p
+                                            style="margin: 0 0 8px 0; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;">
+                                            &copy; {{CurrentYear}} AI Online Training System. All rights reserved.
+                                        </p>
+                                        <p style="margin: 0; font-size: 10px; color: #6B7280;">
+                                            100 Innovation Parkway, Suite 500, Tech District, Chennai, India.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

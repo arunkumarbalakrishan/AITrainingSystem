@@ -1,0 +1,66 @@
+<!-- GREETING & CONFIRMATION -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td align="left" style="font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+            <h2 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 10px 0;">
+                Assignment Received 📥
+            </h2>
+            <p style="font-size: 15px; line-height: 24px; color: #4B5563; margin: 0 0 25px 0;">
+                Hi {{StudentName}}, This email confirms that your assignment submission for
+                <strong>"{{CourseName}}"</strong> was successfully uploaded and logged in our system.
+            </p>
+        </td>
+    </tr>
+
+    <!-- SUBMISSION DETAILS CARD -->
+    <tr>
+        <td align="left"
+            style="padding: 24px; background-color: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                style="font-size: 13.5px; line-height: 24px; color: #4B5563;">
+                <tr>
+                    <td width="130" style="padding-bottom: 8px; font-weight: 700; color: #111827;">Assignment Name:</td>
+                    <td style="padding-bottom: 8px; color: #4B5563;">{{AssignmentName}}</td>
+                </tr>
+                <tr>
+                    <td width="130" style="padding-bottom: 8px; font-weight: 700; color: #111827;">Course Name:</td>
+                    <td style="padding-bottom: 8px; color: #4B5563;">{{CourseName}}</td>
+                </tr>
+                <tr>
+                    <td width="130" style="padding-bottom: 8px; font-weight: 700; color: #111827;">Submitted On:</td>
+                    <td style="padding-bottom: 8px; color: #4B5563;">{{SubmissionDate}}</td>
+                </tr>
+                <tr>
+                    <td width="130" style="font-weight: 700; color: #111827;">Grading Status:</td>
+                    <td style="color: #D97706; font-weight: 600;">Pending Review</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <!-- DESCRIPTION COMMENT -->
+    <tr>
+        <td align="left"
+            style="font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 14px; line-height: 22px; color: #4B5563; padding-top: 20px; padding-bottom: 10px;">
+            Your instructor has been notified of your upload. You will receive an automated alert as soon as your grades
+            and comments are published.
+        </td>
+    </tr>
+
+    <!-- CTA BUTTON SECTION -->
+    <tr>
+        <td align="center" style="padding: 20px 0 10px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" class="button-wrapper">
+                <tr>
+                    <td align="center" bgcolor="#9FEF00" style="border-radius: 8px;" class="mobile-button">
+                        <a href="{{ActionButtonUrl}}" target="_blank"
+                            style="padding: 14px 28px; display: inline-block; font-size: 15px; font-weight: 700; color: #111827; text-decoration: none; font-family: 'Inter', -apple-system, system-ui, sans-serif; background-color: #9FEF00; border-radius: 8px; border: 1px solid #9FEF00; letter-spacing: 0.5px;"
+                            class="mobile-button">
+                            {{ActionButtonText}}
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

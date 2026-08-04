@@ -1,0 +1,64 @@
+<!-- SECURITY HEADER -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td align="left" style="font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+            <h2 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 10px 0;">
+                Security Notice: Email Changed 🚨
+            </h2>
+            <p style="font-size: 15px; line-height: 24px; color: #4B5563; margin: 0 0 20px 0;">
+                Hi {{StudentName}}, This is a security notification confirming that the primary email address linked to
+                your account has been successfully updated.
+            </p>
+        </td>
+    </tr>
+
+    <!-- CHANGE DETAILS CARD -->
+    <tr>
+        <td align="left"
+            style="padding: 24px; background-color: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                style="font-size: 13.5px; line-height: 24px; color: #4B5563;">
+                <tr>
+                    <td width="130" style="padding-bottom: 8px; font-weight: 700; color: #111827;">Previous Email:</td>
+                    <td style="padding-bottom: 8px; color: #6B7280; text-decoration: line-through;">{{OldEmailAddress}}
+                    </td>
+                </tr>
+                <tr>
+                    <td width="130" style="padding-bottom: 8px; font-weight: 700; color: #111827;">New Email:</td>
+                    <td style="padding-bottom: 8px; color: #10B981; font-weight: 600;">{{NewEmailAddress}}</td>
+                </tr>
+                <tr>
+                    <td width="130" style="font-weight: 700; color: #111827;">Changed On:</td>
+                    <td style="color: #4B5563;">{{ChangeDate}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <!-- SECURITY WARNING -->
+    <tr>
+        <td align="left"
+            style="padding: 20px; background-color: #FEF2F2; border-radius: 8px; border: 1px solid #FEE2E2; font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 13.5px; line-height: 20px; color: #DC2626; margin-top: 25px;">
+            <strong>Did you NOT authorize this change?</strong><br />
+            If you did not authorize this change, please contact our support department immediately or click the button
+            below to secure your credentials.
+        </td>
+    </tr>
+
+    <!-- CTA BUTTON SECTION -->
+    <tr>
+        <td align="center" style="padding: 30px 0 10px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" class="button-wrapper">
+                <tr>
+                    <td align="center" bgcolor="#DC2626" style="border-radius: 8px;" class="mobile-button">
+                        <a href="{{ActionButtonUrl}}" target="_blank"
+                            style="padding: 14px 28px; display: inline-block; font-size: 15px; font-weight: 700; color: #FFFFFF; text-decoration: none; font-family: 'Inter', -apple-system, system-ui, sans-serif; background-color: #DC2626; border-radius: 8px; border: 1px solid #DC2626; letter-spacing: 0.5px;"
+                            class="mobile-button">
+                            {{ActionButtonText}}
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

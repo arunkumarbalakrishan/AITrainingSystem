@@ -1,0 +1,46 @@
+<!-- GREETING & DETAILS -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td align="left" style="font-family: 'Inter', -apple-system, system-ui, sans-serif;">
+            <h2 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 10px 0;">
+                Support Ticket Update 💬
+            </h2>
+            <p style="font-size: 15px; line-height: 24px; color: #4B5563; margin: 0 0 20px 0;">
+                Hi {{StudentName}}, We have received an update regarding support ticket <strong>#{{TicketId}}</strong>.
+                Here is the response from our administrative support team:
+            </p>
+        </td>
+    </tr>
+
+    <!-- TICKET MESSAGE BODY -->
+    <tr>
+        <td align="left"
+            style="padding: 24px; background-color: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB; border-left: 4px solid #9FEF00;">
+            <span
+                style="font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; display: block; margin-bottom: 8px;">
+                Agent Response:
+            </span>
+            <div
+                style="font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 14.5px; line-height: 24px; color: #111827; white-space: pre-line;">
+                {{SupportMessageText}}
+            </div>
+        </td>
+    </tr>
+
+    <!-- CTA ACTION BUTTON -->
+    <tr>
+        <td align="center" style="padding: 30px 0 10px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" class="button-wrapper">
+                <tr>
+                    <td align="center" bgcolor="#9FEF00" style="border-radius: 8px;" class="mobile-button">
+                        <a href="{{ActionButtonUrl}}" target="_blank"
+                            style="padding: 14px 28px; display: inline-block; font-size: 15px; font-weight: 700; color: #111827; text-decoration: none; font-family: 'Inter', -apple-system, system-ui, sans-serif; background-color: #9FEF00; border-radius: 8px; border: 1px solid #9FEF00; letter-spacing: 0.5px;"
+                            class="mobile-button">
+                            {{ActionButtonText}}
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

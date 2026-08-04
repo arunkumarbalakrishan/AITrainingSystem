@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AITrainingSystem.Domain.Entities
 {
@@ -10,6 +11,25 @@ namespace AITrainingSystem.Domain.Entities
         public string Description { get; set; } = string.Empty;
         
         public string MeetingLink { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string Provider
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(MeetingLink)) return "Jitsi";
+                if (MeetingLink.Contains("zoom.us", StringComparison.OrdinalIgnoreCase)) return "Zoom";
+                if (MeetingLink.Contains("meet.jit.si", StringComparison.OrdinalIgnoreCase)) return "Jitsi";
+                return "Custom";
+            }
+            set { }
+        }
+
+        [NotMapped]
+        public string? Passcode { get; set; }
+
+        [NotMapped]
+        public string? HostStartUrl { get; set; }
         
         public DateTime StartTime { get; set; }
         public int DurationInMinutes { get; set; }

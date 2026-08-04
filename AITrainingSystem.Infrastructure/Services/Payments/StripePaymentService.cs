@@ -22,6 +22,7 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<StripePaymentService> _logger;
+        private readonly IEmailTemplateService _emailTemplateService;
 
         public StripePaymentService(
             IPaymentRepository paymentRepo,
@@ -30,7 +31,8 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
             IEnrollmentService enrollmentService,
             INotificationService notificationService,
             IConfiguration configuration,
-            ILogger<StripePaymentService> logger)
+            ILogger<StripePaymentService> _logger,
+            IEmailTemplateService emailTemplateService)
         {
             _paymentRepo = paymentRepo;
             _courseRepo = courseRepo;
@@ -38,7 +40,8 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
             _enrollmentService = enrollmentService;
             _notificationService = notificationService;
             _configuration = configuration;
-            _logger = logger;
+            this._logger = _logger;
+            _emailTemplateService = emailTemplateService;
 
             // Initialize Stripe API Key
             var stripeSecretKey = _configuration["Stripe:SecretKey"];
@@ -189,14 +192,42 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
                                 $"Welcome! You have been successfully enrolled in the course."
                             );
 
+                            var course = await _courseRepo.GetByIdAsync(payment.CourseId);
                             var user = await _userRepo.GetByIdAsync(payment.UserId);
-                            if (user != null)
+                            if (user != null && course != null)
                             {
-                                await _notificationService.SendEmailAsync(
-                                    user.Email,
-                                    "Enrollment Confirmed",
-                                    $"Hi {user.FullName},<br/><br/>Your payment was successful and you are now enrolled."
-                                );
+                                var clientUrl = _configuration["ClientUrl"] ?? "http://localhost:4200";
+                                var placeholders = new Dictionary<string, string>
+                                {
+                                    { "StudentName", user.FullName },
+                                    { "CourseName", course.Title },
+                                    { "InstructorName", "Expert AI Trainer" },
+                                    { "CourseDuration", $"{course.DurationInHours}h" },
+                                    { "EnrollmentDate", DateTime.UtcNow.ToString("MMMM dd, yyyy") },
+                                    { "ActionButtonText", "Start Learning" },
+                                    { "ActionButtonUrl", $"{clientUrl.TrimEnd('/')}/courses/{course.Id}" },
+                                    { "SupportEmail", "support@aitrainingsystem.com" },
+                                    { "SupportPhone", "+1 (555) 019-2834" }
+                                };
+
+                                // Queue Course Enrollment Email
+                                await _emailTemplateService.QueueEmailAsync(user.Email, $"Enrollment Confirmed: {course.Title}", "CourseEnrollment", placeholders);
+
+                                // Queue Payment Receipt Email
+                                var receiptPlaceholders = new Dictionary<string, string>
+                                {
+                                    { "StudentName", user.FullName },
+                                    { "CourseName", course.Title },
+                                    { "TransactionId", payment.StripeSessionId },
+                                    { "PaymentMethod", "Credit Card / Stripe" },
+                                    { "PaymentDate", payment.CreatedAt.ToString("MMMM dd, yyyy") },
+                                    { "PaymentAmount", $"{payment.Amount:F2} USD" },
+                                    { "ActionButtonText", "Go to Dashboard" },
+                                    { "ActionButtonUrl", $"{clientUrl.TrimEnd('/')}/dashboard" },
+                                    { "SupportEmail", "support@aitrainingsystem.com" },
+                                    { "SupportPhone", "+1 (555) 019-2834" }
+                                };
+                                await _emailTemplateService.QueueEmailAsync(user.Email, "Your Payment Receipt", "PaymentReceipt", receiptPlaceholders);
                             }
                         }
                     }
@@ -247,13 +278,40 @@ namespace AITrainingSystem.Infrastructure.Services.Payments
                 );
 
                 var user = await _userRepo.GetByIdAsync(userId);
-                if (user != null)
+                if (user != null && course != null)
                 {
-                    await _notificationService.SendEmailAsync(
-                        user.Email,
-                        "Enrollment Confirmed (Mock)",
-                        $"Hi {user.FullName},<br/><br/>Your mock payment was completed and you are enrolled."
-                    );
+                    var clientUrl = _configuration["ClientUrl"] ?? "http://localhost:4200";
+                    var placeholders = new Dictionary<string, string>
+                    {
+                        { "StudentName", user.FullName },
+                        { "CourseName", course.Title },
+                        { "InstructorName", "Expert AI Trainer" },
+                        { "CourseDuration", $"{course.DurationInHours}h" },
+                        { "EnrollmentDate", DateTime.UtcNow.ToString("MMMM dd, yyyy") },
+                        { "ActionButtonText", "Start Learning" },
+                        { "ActionButtonUrl", $"{clientUrl.TrimEnd('/')}/courses/{course.Id}" },
+                        { "SupportEmail", "support@aitrainingsystem.com" },
+                        { "SupportPhone", "+1 (555) 019-2834" }
+                    };
+
+                    // Queue Course Enrollment Email
+                    await _emailTemplateService.QueueEmailAsync(user.Email, $"Enrollment Confirmed: {course.Title}", "CourseEnrollment", placeholders);
+
+                    // Queue Payment Receipt Email
+                    var receiptPlaceholders = new Dictionary<string, string>
+                    {
+                        { "StudentName", user.FullName },
+                        { "CourseName", course.Title },
+                        { "TransactionId", payment.StripeSessionId },
+                        { "PaymentMethod", "Mock Billing Provider" },
+                        { "PaymentDate", payment.CreatedAt.ToString("MMMM dd, yyyy") },
+                        { "PaymentAmount", $"{payment.Amount:F2} USD" },
+                        { "ActionButtonText", "Go to Dashboard" },
+                        { "ActionButtonUrl", $"{clientUrl.TrimEnd('/')}/dashboard" },
+                        { "SupportEmail", "support@aitrainingsystem.com" },
+                        { "SupportPhone", "+1 (555) 019-2834" }
+                    };
+                    await _emailTemplateService.QueueEmailAsync(user.Email, "Your Payment Receipt", "PaymentReceipt", receiptPlaceholders);
                 }
 
                 return ApiResponse<bool>.SuccessResponse(true, "Mock payment confirmed, user enrolled successfully.");

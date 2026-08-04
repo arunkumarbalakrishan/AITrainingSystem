@@ -14,39 +14,68 @@ namespace AITrainingSystem.Infrastructure.Services.LiveClasses
     public class LiveClassService : ILiveClassService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IZoomApiService _zoomApiService;
+        private readonly IJitsiMeetingService _jitsiMeetingService;
 
-        public LiveClassService(ApplicationDbContext context)
+        public LiveClassService(
+            ApplicationDbContext context,
+            IZoomApiService zoomApiService,
+            IJitsiMeetingService jitsiMeetingService)
         {
             _context = context;
+            _zoomApiService = zoomApiService;
+            _jitsiMeetingService = jitsiMeetingService;
         }
 
         public async Task<ApiResponse<LiveClassDto>> CreateLiveClassAsync(CreateLiveClassDto dto, Guid trainerId)
         {
             try
             {
-                var meetingLink = dto.MeetingLink;
-                if (string.IsNullOrWhiteSpace(meetingLink))
-                {
-                    // Generate a realistic mock Zoom link
-                    var random = new Random();
-                    var part1 = random.Next(100, 999);
-                    var part2 = random.Next(100, 999);
-                    var part3 = random.Next(1000, 9999);
-                    var meetingId = $"{part1}{part2}{part3}";
-                    
-                    const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                    var passcode = new string(Enumerable.Repeat(chars, 8)
-                        .Select(s => s[random.Next(s.Length)]).ToArray());
+                var classId = Guid.NewGuid();
+                string meetingLink = dto.MeetingLink ?? string.Empty;
+                string provider = string.IsNullOrWhiteSpace(dto.Provider) ? "Auto" : dto.Provider;
+                string? passcode = null;
+                string? hostStartUrl = null;
 
-                    meetingLink = $"https://us06web.zoom.us/j/{meetingId}?pwd={passcode}";
+                // 1. Explicit Custom Link
+                if (provider.Equals("Custom", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(meetingLink))
+                {
+                    provider = "Custom";
+                }
+                // 2. Zoom API Meeting Request
+                else if (provider.Equals("Zoom", StringComparison.OrdinalIgnoreCase))
+                {
+                    var zoomRes = await _zoomApiService.CreateMeetingAsync(dto.Title, dto.Description, dto.StartTime, dto.DurationInMinutes);
+                    if (zoomRes.Success)
+                    {
+                        meetingLink = zoomRes.MeetingLink;
+                        hostStartUrl = zoomRes.HostStartUrl;
+                        passcode = zoomRes.Passcode;
+                        provider = "Zoom";
+                    }
+                    else
+                    {
+                        // Fallback to Jitsi if Zoom configuration/API fails
+                        meetingLink = _jitsiMeetingService.GenerateMeetingLink(dto.Title, classId);
+                        provider = "Jitsi";
+                    }
+                }
+                // 3. Jitsi WebRTC (Default out-of-the-box in-app streaming)
+                else
+                {
+                    meetingLink = _jitsiMeetingService.GenerateMeetingLink(dto.Title, classId);
+                    provider = "Jitsi";
                 }
 
                 var liveClass = new LiveClass
                 {
-                    Id = Guid.NewGuid(),
+                    Id = classId,
                     Title = dto.Title,
                     Description = dto.Description,
                     MeetingLink = meetingLink,
+                    Provider = provider,
+                    Passcode = passcode,
+                    HostStartUrl = hostStartUrl,
                     StartTime = dto.StartTime,
                     DurationInMinutes = dto.DurationInMinutes,
                     CourseId = dto.CourseId,
@@ -154,6 +183,9 @@ namespace AITrainingSystem.Infrastructure.Services.LiveClasses
                 Title = liveClass.Title,
                 Description = liveClass.Description,
                 MeetingLink = liveClass.MeetingLink,
+                Provider = liveClass.Provider ?? "Jitsi",
+                Passcode = liveClass.Passcode,
+                HostStartUrl = liveClass.HostStartUrl,
                 StartTime = liveClass.StartTime,
                 DurationInMinutes = liveClass.DurationInMinutes,
                 CourseId = liveClass.CourseId,
