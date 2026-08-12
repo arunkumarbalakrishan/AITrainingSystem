@@ -49,7 +49,11 @@ try
             .ReadFrom.Services(services);
 
         var firebaseProjectId = context.Configuration["Firebase:ProjectId"];
-        if (!string.IsNullOrEmpty(firebaseProjectId))
+        var hasGoogleCredentials = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS"))
+                                || File.Exists(Path.Combine(context.HostingEnvironment.ContentRootPath, "firebase-credentials.json"))
+                                || File.Exists("firebase-credentials.json");
+
+        if (!string.IsNullOrEmpty(firebaseProjectId) && hasGoogleCredentials)
         {
             configuration.WriteTo.GoogleCloudLogging(new GoogleCloudLoggingSinkOptions(firebaseProjectId)
             {
