@@ -34,9 +34,9 @@ try
     });
 
     builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true)
-                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                        .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: false)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false);
 
 
     builder.Configuration.AddEnvironmentVariables();
