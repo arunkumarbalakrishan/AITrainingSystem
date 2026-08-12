@@ -2,7 +2,6 @@ using AITrainingSystem.API.Extensions;
 using QuestPDF.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Serilog.Sinks.GoogleCloudLogging;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -18,77 +17,20 @@ try
 #endif
     QuestPDF.Settings.License = LicenseType.Community;
 
-    var env = builder.Environment;
+    // Load Configurations & Environment Settings
+    builder.Configuration.AddCustomConfigurationFiles(builder.Environment);
+
+    // Configure Custom Serilog logging
+    builder.Host.ConfigureCustomLogging();
 
     // Add CORS
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowAngularDev",
-            policy => policy.SetIsOriginAllowed(origin => {
-                                var host = new Uri(origin).Host;
-                                return host == "localhost" || host.EndsWith(".vercel.app") || host.EndsWith("somee.com");
-                             })
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials());
-    });
+    builder.Services.AddCustomCors();
 
-    builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-                        .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: false)
-                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false);
-
-
-    builder.Configuration.AddEnvironmentVariables();
-
-    // Bind Serilog integration
-    builder.Host.UseSerilog((context, services, configuration) =>
-    {
-        configuration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services);
-
-        var firebaseProjectId = context.Configuration["Firebase:ProjectId"];
-        var hasGoogleCredentials = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS"))
-                                || File.Exists(Path.Combine(context.HostingEnvironment.ContentRootPath, "firebase-credentials.json"))
-                                || File.Exists("firebase-credentials.json");
-
-        if (!string.IsNullOrEmpty(firebaseProjectId) && hasGoogleCredentials)
-        {
-            configuration.WriteTo.GoogleCloudLogging(new GoogleCloudLoggingSinkOptions(firebaseProjectId)
-            {
-                LogName = "aitrainingsystem-api-logs"
-            });
-        }
-    });
+    // Configure api behaviors 
+    builder.Services.ConfigureCustomApiBehavior();
 
     // Add Controllers
     builder.Services.AddControllers();
-    builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
-    {
-        options.InvalidModelStateResponseFactory = context =>
-        {
-            var problemDetails = new Microsoft.AspNetCore.Mvc.ValidationProblemDetails(context.ModelState)
-            {
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Title = "One or more validation errors occurred.",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = "See the errors property for details.",
-                Instance = context.HttpContext.Request.Path
-            };
-
-            var correlationId = context.HttpContext.Response.Headers["X-Correlation-ID"].ToString();
-            if (!string.IsNullOrEmpty(correlationId))
-            {
-                problemDetails.Extensions["traceId"] = correlationId;
-            }
-
-            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(problemDetails)
-            {
-                ContentTypes = { "application/problem+json" }
-            };
-        };
-    });
     builder.Services.AddSignalR();
 
 
