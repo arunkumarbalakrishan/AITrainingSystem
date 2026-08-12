@@ -10,20 +10,28 @@ namespace AITrainingSystem.Infrastructure.Services.users;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly ICacheService _cacheService;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, ICacheService cacheService)
     {
         _userRepository = userRepository;
+        _cacheService = cacheService;
     }
 
     public async Task<UserResponseDto?> GetCurrentUserAsync(Guid userId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var cacheKey = $"user:{userId}:profile";
+        var cached = await _cacheService.GetAsync<UserResponseDto>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
 
+        var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
             return null;
 
-        return new UserResponseDto
+        var response = new UserResponseDto
         {
             Id = user.Id,
             FullName = user.FullName,
@@ -31,16 +39,25 @@ public class UserService : IUserService
             Role = user.Role,
             IsApprovedTrainer = user.IsApprovedTrainer
         };
+
+        await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(15));
+        return response;
     }
 
     public async Task<UserResponseDto?> GetUserByIdAsync(Guid id)
     {
-        var user = await _userRepository.GetByIdAsync(id);
+        var cacheKey = $"user:{id}:profile";
+        var cached = await _cacheService.GetAsync<UserResponseDto>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
 
+        var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
             return null;
 
-        return new UserResponseDto
+        var response = new UserResponseDto
         {
             Id = user.Id,
             FullName = user.FullName,
@@ -48,6 +65,9 @@ public class UserService : IUserService
             Role = user.Role,
             IsApprovedTrainer = user.IsApprovedTrainer
         };
+
+        await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(15));
+        return response;
     }
     public async Task<bool> UpdateUserAsync(Guid id, UpdateUserDto dto)
     {
@@ -65,6 +85,10 @@ public class UserService : IUserService
 
         await _userRepository.UpdateAsync(user);
 
+        // Invalidate caches
+        await _cacheService.RemoveAsync($"user:{id}:profile");
+        await _cacheService.RemoveAsync($"user:{id}:dashboard");
+
         return true;
     }
     public async Task<bool> DeleteUserAsync(Guid id)
@@ -75,6 +99,10 @@ public class UserService : IUserService
             return false;
 
         await _userRepository.DeleteAsync(user);
+
+        // Invalidate caches
+        await _cacheService.RemoveAsync($"user:{id}:profile");
+        await _cacheService.RemoveAsync($"user:{id}:dashboard");
 
         return true;
     }
@@ -118,6 +146,10 @@ public class UserService : IUserService
         }
 
         await _userRepository.UpdateAsync(user);
+
+        // Invalidate caches
+        await _cacheService.RemoveAsync($"user:{userId}:profile");
+        await _cacheService.RemoveAsync($"user:{userId}:dashboard");
         return true;
     }
 

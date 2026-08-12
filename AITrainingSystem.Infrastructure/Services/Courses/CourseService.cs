@@ -45,7 +45,7 @@ public class CourseService : ICourseService
             CreatedAt = createdCourse.CreatedAt
         };
 
-        await _cacheService.RemoveAsync("all_courses");
+        await _cacheService.RemoveAsync("homepage:courses");
 
         return ApiResponse<CourseResponseDto>.SuccessResponse(
             response,
@@ -55,7 +55,7 @@ public class CourseService : ICourseService
 
     public async Task<ApiResponse<IEnumerable<CourseResponseDto>>> GetAllAsync()
     {
-        var cacheKey = "all_courses";
+        var cacheKey = "homepage:courses";
         var cachedCourses = await _cacheService.GetAsync<IEnumerable<CourseResponseDto>>(cacheKey);
 
         if (cachedCourses != null)
@@ -90,7 +90,7 @@ public class CourseService : ICourseService
 
     public async Task<ApiResponse<CourseResponseDto>> GetByIdAsync(Guid id)
     {
-        var cacheKey = $"course_{id}";
+        var cacheKey = $"course:{id}";
         var cachedCourse = await _cacheService.GetAsync<CourseResponseDto>(cacheKey);
 
         if (cachedCourse != null)
@@ -159,8 +159,8 @@ public class CourseService : ICourseService
             CreatedAt = course.CreatedAt
         };
 
-        await _cacheService.RemoveAsync("all_courses");
-        await _cacheService.RemoveAsync($"course_{id}");
+        await _cacheService.RemoveAsync("homepage:courses");
+        await _cacheService.RemoveAsync($"course:{id}");
 
         return ApiResponse<CourseResponseDto>.SuccessResponse(
             response,
@@ -179,8 +179,8 @@ public class CourseService : ICourseService
 
         await _courseRepository.DeleteAsync(course);
 
-        await _cacheService.RemoveAsync("all_courses");
-        await _cacheService.RemoveAsync($"course_{id}");
+        await _cacheService.RemoveAsync("homepage:courses");
+        await _cacheService.RemoveAsync($"course:{id}");
 
         return ApiResponse<string>.SuccessResponse(
             "Course deleted successfully"

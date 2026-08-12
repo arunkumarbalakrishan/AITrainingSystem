@@ -24,17 +24,20 @@ namespace AITrainingSystem.Infrastructure.Services.Email
         private readonly IConfiguration _configuration;
         private readonly ILogger<SmtpNotificationService> _logger;
         private readonly IRealTimeNotificationService _realTimeNotificationService;
+        private readonly ICacheService _cacheService;
 
         public SmtpNotificationService(
             INotificationRepository repo, 
             IConfiguration configuration, 
             ILogger<SmtpNotificationService> logger,
-            IRealTimeNotificationService realTimeNotificationService)
+            IRealTimeNotificationService realTimeNotificationService,
+            ICacheService cacheService)
         {
             _repo = repo;
             _configuration = configuration;
             _logger = logger;
             _realTimeNotificationService = realTimeNotificationService;
+            _cacheService = cacheService;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -203,11 +206,21 @@ namespace AITrainingSystem.Infrastructure.Services.Email
                 _logger.LogError(ex, "Failed to broadcast real-time notification to user {UserId}", userId);
             }
 
+            // Invalidate notification caches
+            await _cacheService.RemoveAsync($"user:{userId}:notifications");
+
             return dto;
         }
 
         public async Task<ApiResponse<IEnumerable<NotificationDto>>> GetNotificationsForUserAsync(Guid userId)
         {
+            var cacheKey = $"user:{userId}:notifications";
+            var cached = await _cacheService.GetAsync<IEnumerable<NotificationDto>>(cacheKey);
+            if (cached != null)
+            {
+                return ApiResponse<IEnumerable<NotificationDto>>.SuccessResponse(cached, "Notifications retrieved successfully.");
+            }
+
             var notifications = await _repo.GetByUserIdAsync(userId);
             var result = notifications.Select(n => new NotificationDto
             {
@@ -217,8 +230,9 @@ namespace AITrainingSystem.Infrastructure.Services.Email
                 Message = n.Message,
                 IsRead = n.IsRead,
                 CreatedAt = n.CreatedAt
-            });
+            }).ToList();
 
+            await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(10));
             return ApiResponse<IEnumerable<NotificationDto>>.SuccessResponse(result, "Notifications retrieved successfully.");
         }
 
@@ -233,6 +247,9 @@ namespace AITrainingSystem.Infrastructure.Services.Email
             notification.IsRead = true;
             await _repo.UpdateAsync(notification);
             await _repo.SaveChangesAsync();
+
+            // Invalidate notification caches
+            await _cacheService.RemoveAsync($"user:{notification.UserId}:notifications");
 
             return ApiResponse<bool>.SuccessResponse(true, "Notification marked as read.");
         }

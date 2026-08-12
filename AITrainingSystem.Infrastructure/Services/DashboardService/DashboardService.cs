@@ -2,9 +2,13 @@ using AITrainingSystem.Application.DTOs.Analytics;
 using AITrainingSystem.Application.Interfaces.DashboardService;
 using AITrainingSystem.Application.Interfaces.Repositories;
 using AITrainingSystem.Application.Interfaces.Respository;
+using AITrainingSystem.Application.Interfaces.Services;
 using AITrainingSystem.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AITrainingSystem.Infrastructure.Services.Dashboard;
 
@@ -14,22 +18,32 @@ public class DashboardService : IDashboardService
     private readonly ILessonProgressRepository _progressRepository;
     private readonly ICertificateRepository _certificateRepository;
     private readonly ApplicationDbContext _context;
+    private readonly ICacheService _cacheService;
 
     public DashboardService(
         IEnrollmentRepository enrollmentRepository,
         ILessonProgressRepository progressRepository,
         ICertificateRepository certificateRepository,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        ICacheService cacheService)
     {
         _enrollmentRepository = enrollmentRepository;
         _progressRepository = progressRepository;
         _certificateRepository = certificateRepository;
         _context = context;
+        _cacheService = cacheService;
     }
 
     public async Task<LearningAnalyticsDto>
         GetAnalyticsAsync(Guid userId)
     {
+        var cacheKey = $"user:{userId}:dashboard";
+        var cached = await _cacheService.GetAsync<LearningAnalyticsDto>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         var totalCourses =
             await _enrollmentRepository
                 .GetEnrolledCourseCountAsync(userId);
@@ -99,7 +113,7 @@ public class DashboardService : IDashboardService
             }
         }
 
-        return new LearningAnalyticsDto
+        var result = new LearningAnalyticsDto
         {
             TotalCoursesEnrolled = totalCourses,
             CompletedCourses = completedCourses,
@@ -108,16 +122,37 @@ public class DashboardService : IDashboardService
             TotalHours = totalHours,
             StreakDays = streak
         };
+
+        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5));
+        return result;
     }
+
     public async Task<List<RecentlyCompletedCourseDto>>
     GetRecentlyCompletedCoursesAsync(Guid userId)
     {
-        return await _progressRepository
+        var cacheKey = $"user:{userId}:recent_courses";
+        var cached = await _cacheService.GetAsync<List<RecentlyCompletedCourseDto>>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var result = await _progressRepository
             .GetRecentlyCompletedCoursesAsync(userId);
+
+        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5));
+        return result;
     }
 
     public async Task<AdminReportsDto> GetAdminReportsAsync()
     {
+        var cacheKey = "admin:reports";
+        var cached = await _cacheService.GetAsync<AdminReportsDto>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         // Retroactively update completed mock payments that were saved with Amount == 0
         var zeroPayments = await _context.Payments
             .Include(p => p.Course)
@@ -235,7 +270,7 @@ public class DashboardService : IDashboardService
         .OrderByDescending(c => c.IssuedDate)
         .ToList();
 
-        return new AdminReportsDto
+        var result = new AdminReportsDto
         {
             TotalRevenue = totalRevenue,
             MonthlyRevenue = monthlyRevenue,
@@ -244,5 +279,8 @@ public class DashboardService : IDashboardService
             TopCourses = topCourses,
             IssuedCertificates = issuedCertificatesList
         };
+
+        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(3));
+        return result;
     }
 }

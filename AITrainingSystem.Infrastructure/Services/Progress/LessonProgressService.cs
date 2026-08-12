@@ -16,19 +16,22 @@ public class LessonProgressService : ILessonProgressService
     private readonly IQuizRepository _quizRepo;
     private readonly IAssessmentResultRepository _resultRepo;
     private readonly ApplicationDbContext _context;
+    private readonly ICacheService _cacheService;
 
     public LessonProgressService(
         ILessonProgressRepository repo,
         ICertificateService certificateService,
         IQuizRepository quizRepo,
         IAssessmentResultRepository resultRepo,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        ICacheService cacheService)
     {
         _repo = repo;
         _certificateService = certificateService;
         _quizRepo = quizRepo;
         _resultRepo = resultRepo;
         _context = context;
+        _cacheService = cacheService;
     }
 
     public async Task CompleteLessonAsync(
@@ -54,10 +57,25 @@ public class LessonProgressService : ILessonProgressService
         };
 
         await _repo.AddAsync(progress);
+
+        // Invalidate caches
+        var lesson = await _context.Lessons.FindAsync(lessonId);
+        if (lesson != null)
+        {
+            await _cacheService.RemoveAsync($"user:{userId}:progress:{lesson.CourseId}");
+        }
+        await _cacheService.RemoveAsync($"user:{userId}:dashboard");
     }
 
     public async Task<CourseProgressDto>GetCourseProgressAsync(Guid userId, Guid courseId)
     {
+        var cacheKey = $"user:{userId}:progress:{courseId}";
+        var cached = await _cacheService.GetAsync<CourseProgressDto>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         var completedLessons =
             await _repo.GetCompletedCountAsync(
                 userId,
@@ -103,7 +121,7 @@ public class LessonProgressService : ILessonProgressService
 
         var hasStarted = completedLessons > 0 || hasVideoProgress;
 
-        return new CourseProgressDto
+        var result = new CourseProgressDto
         {
             CourseId = courseId,
             CompletedLessons = completedLessons,
@@ -113,6 +131,9 @@ public class LessonProgressService : ILessonProgressService
             IsCertificateEligible = isEligibleForCertificate,
             HasStarted = hasStarted
         };
+
+        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(10));
+        return result;
     }
 
    

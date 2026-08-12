@@ -253,8 +253,10 @@ public class AuthService : IAuthService
                 };
             }
 
+            var firebaseProjectId = _configuration["Firebase:ProjectId"] ?? "ai-online-training-system";
+
             // Verify Issuer (Firebase secure tokens)
-            var expectedIssuer = "https://securetoken.google.com/ai-online-training-system";
+            var expectedIssuer = $"https://securetoken.google.com/{firebaseProjectId}";
             if (!payload.TryGetValue("iss", out var issVal) || !string.Equals(issVal?.ToString(), expectedIssuer, StringComparison.OrdinalIgnoreCase))
             {
                 return new AuthResponseDto
@@ -264,7 +266,7 @@ public class AuthService : IAuthService
             }
 
             // Verify Audience (Firebase Project ID)
-            var expectedAudience = "ai-online-training-system";
+            var expectedAudience = firebaseProjectId;
             if (!payload.TryGetValue("aud", out var audVal) || !string.Equals(audVal?.ToString(), expectedAudience, StringComparison.OrdinalIgnoreCase))
             {
                 return new AuthResponseDto

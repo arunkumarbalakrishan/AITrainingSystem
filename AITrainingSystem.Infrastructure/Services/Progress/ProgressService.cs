@@ -14,10 +14,12 @@ namespace AITrainingSystem.Infrastructure.Services.Progress
     public class ProgressService : IProgressService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ICacheService _cacheService;
 
-        public ProgressService(ApplicationDbContext context)
+        public ProgressService(ApplicationDbContext context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
         public async Task UpdateVideoProgressAsync( Guid userId, UpdateVideoProgressDto dto)
         {
@@ -77,6 +79,9 @@ namespace AITrainingSystem.Infrastructure.Services.Progress
 
             // Save changes
             await _context.SaveChangesAsync();
+
+            // Invalidate user dashboard cache
+            await _cacheService.RemoveAsync($"user:{userId}:dashboard");
         }
 
         public async Task<VideoProgress?> GetVideoProgressAsync( Guid userId,Guid lessonId)

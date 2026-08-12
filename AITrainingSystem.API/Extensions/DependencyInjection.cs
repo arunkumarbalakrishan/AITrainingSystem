@@ -33,7 +33,8 @@ namespace AITrainingSystem.API.Extensions;
 public static class DependencyInjectionExt
 {
     public static IServiceCollection AddApplicationServices(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
         // Auth Services
         services.AddScoped<IAuthService, AuthService>();
@@ -120,8 +121,21 @@ public static class DependencyInjectionExt
         services.AddHttpClient<IAIService, OpenAIService>();
 
         // Cache Services
-        services.AddMemoryCache();
-        services.AddScoped<ICacheService, AITrainingSystem.Infrastructure.Services.Cache.MemoryCacheService>();
+        var redisConn = configuration["Redis:ConnectionString"];
+        if (!string.IsNullOrEmpty(redisConn))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConn;
+                options.InstanceName = "AITraining:";
+            });
+            services.AddScoped<ICacheService, AITrainingSystem.Infrastructure.Services.Cache.RedisCacheService>();
+        }
+        else
+        {
+            services.AddMemoryCache();
+            services.AddScoped<ICacheService, AITrainingSystem.Infrastructure.Services.Cache.MemoryCacheService>();
+        }
 
         // Background Queue Hosted Service
         services.AddHostedService<AITrainingSystem.Infrastructure.Services.Background.EmailQueueBackgroundService>();
