@@ -31,7 +31,10 @@ try
 
     // Add Controllers
     builder.Services.AddControllers();
-    builder.Services.AddSignalR();
+    builder.Services.AddSignalR(options =>
+    {
+        options.MaximumReceiveMessageSize = 131072; // 128 KB limit for large WebRTC SDP payloads
+    });
 
 
     // Database Configuration
@@ -114,6 +117,7 @@ try
 
     app.MapControllers();
     app.MapHub<AITrainingSystem.API.Hubs.NotificationHub>("/hubs/notifications");
+    app.MapHub<AITrainingSystem.API.Hubs.LiveClassHub>("/hubs/liveclass");
 
     app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {

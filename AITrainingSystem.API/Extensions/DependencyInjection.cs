@@ -97,6 +97,7 @@ public static class DependencyInjectionExt
         services.AddScoped<INotificationService, SmtpNotificationService>();
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<ILiveClassService, LiveClassService>();
+        services.AddScoped<ILiveClassSessionService, AITrainingSystem.Infrastructure.Services.LiveClasses.LiveClassSessionService>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 
         // Storage registration
@@ -122,11 +123,35 @@ public static class DependencyInjectionExt
 
         // Cache Services
         var redisConn = configuration["Redis:ConnectionString"];
+        bool useRedis = false;
+        StackExchange.Redis.ConnectionMultiplexer? connectionMultiplexer = null;
         if (!string.IsNullOrEmpty(redisConn))
         {
+            try
+            {
+                var redisOptions = StackExchange.Redis.ConfigurationOptions.Parse(redisConn);
+                redisOptions.ConnectTimeout = 1000; // 1 second connection check limit
+                redisOptions.SyncTimeout = 1000;
+                connectionMultiplexer = StackExchange.Redis.ConnectionMultiplexer.Connect(redisOptions);
+                useRedis = connectionMultiplexer.IsConnected;
+            }
+            catch
+            {
+                useRedis = false;
+                connectionMultiplexer?.Dispose();
+                connectionMultiplexer = null;
+            }
+        }
+
+        if (useRedis && connectionMultiplexer != null)
+        {
+            services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(connectionMultiplexer);
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = redisConn;
+                var redisOptions = StackExchange.Redis.ConfigurationOptions.Parse(redisConn);
+                redisOptions.ConnectTimeout = 1000;
+                redisOptions.SyncTimeout = 1000;
+                options.ConfigurationOptions = redisOptions;
                 options.InstanceName = "AITraining:";
             });
             services.AddScoped<ICacheService, AITrainingSystem.Infrastructure.Services.Cache.RedisCacheService>();

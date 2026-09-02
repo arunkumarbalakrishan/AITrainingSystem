@@ -36,6 +36,8 @@ namespace AITrainingSystem.Persistence.Context
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<LiveClass> LiveClasses { get; set; }
+        public DbSet<LiveClassAttendance> LiveClassAttendances { get; set; }
+        public DbSet<LiveClassRecording> LiveClassRecordings { get; set; }
         public DbSet<MockInterviewSession> MockInterviewSessions { get; set; }
         public DbSet<EmailLog> EmailLogs { get; set; }
 
@@ -158,6 +160,24 @@ namespace AITrainingSystem.Persistence.Context
                 .WithMany()
                 .HasForeignKey(l => l.CourseId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<LiveClassAttendance>()
+                .HasOne(a => a.LiveClass)
+                .WithMany()
+                .HasForeignKey(a => a.LiveClassId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LiveClassAttendance>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<LiveClassRecording>()
+                .HasOne(r => r.LiveClass)
+                .WithMany()
+                .HasForeignKey(r => r.LiveClassId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

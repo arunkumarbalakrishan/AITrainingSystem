@@ -332,6 +332,73 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.ToTable("LiveClasses");
                 });
 
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.LiveClassAttendance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("DurationInMinutes")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("JoinTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LeaveTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LiveClassId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LiveClassId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LiveClassAttendances");
+                });
+
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.LiveClassRecording", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DownloadUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("DurationInMinutes")
+                        .HasColumnType("float");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("LiveClassId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LiveClassId");
+
+                    b.ToTable("LiveClassRecordings");
+                });
+
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.MediaFile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -858,6 +925,36 @@ namespace AITrainingSystem.Persistence.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("Trainer");
+                });
+
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.LiveClassAttendance", b =>
+                {
+                    b.HasOne("AITrainingSystem.Domain.Entities.LiveClass", "LiveClass")
+                        .WithMany()
+                        .HasForeignKey("LiveClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AITrainingSystem.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LiveClass");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AITrainingSystem.Domain.Entities.LiveClassRecording", b =>
+                {
+                    b.HasOne("AITrainingSystem.Domain.Entities.LiveClass", "LiveClass")
+                        .WithMany()
+                        .HasForeignKey("LiveClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LiveClass");
                 });
 
             modelBuilder.Entity("AITrainingSystem.Domain.Entities.MediaFile", b =>
