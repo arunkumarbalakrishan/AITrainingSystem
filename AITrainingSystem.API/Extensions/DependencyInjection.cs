@@ -20,7 +20,6 @@ using AITrainingSystem.Infrastructure.Services.Notes;
 using AITrainingSystem.Infrastructure.Services.Payments;
 using AITrainingSystem.Infrastructure.Services.Progress;
 using AITrainingSystem.Infrastructure.Services.Storage;
-using AITrainingSystem.Infrastructure.Services.Search;
 using AITrainingSystem.Infrastructure.Services.users;
 using AITrainingSystem.Persistence.Repositories;
 using FluentValidation;
