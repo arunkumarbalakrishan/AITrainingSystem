@@ -84,10 +84,7 @@ public static class DependencyInjectionExt
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IEmailLogRepository, EmailLogRepository>();
 
-        // New Services
-        services.AddScoped<ICourseService, CourseService>();
-        services.AddScoped<ILessonProgressService, LessonProgressService>();
-        services.AddScoped<IEnrollmentService, EnrollmentService>();
+        // RealTime Services
         services.AddScoped<IRealTimeNotificationService, AITrainingSystem.API.Services.RealTimeNotificationService>();
 
         // Domain Services

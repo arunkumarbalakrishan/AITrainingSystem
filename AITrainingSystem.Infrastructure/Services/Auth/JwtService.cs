@@ -1,5 +1,4 @@
-﻿using AITrainingSystem.Domain.Entities;
-using AutoMapper.Configuration;
+using AITrainingSystem.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
