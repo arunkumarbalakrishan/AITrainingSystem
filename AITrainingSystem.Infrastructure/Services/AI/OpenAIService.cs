@@ -81,14 +81,28 @@ namespace AITrainingSystem.Infrastructure.Services.AI
                 }
             }
 
-            var prompt = $"You are an expert AI Tutor and learning assistant for the online course '{courseTitle}'. " +
-                         $"The student is currently learning the lesson '{lessonTitle}'.\n" +
-                         $"Please answer the following student question with high-quality, friendly, educational context and details:\n" +
-                         $"Student Question: \"{request.Question}\"";
+            var systemPrompt = $"You are an expert AI Tutor and learning assistant for the online course '{courseTitle}'. " +
+                               $"The student is currently learning the lesson '{lessonTitle}'. Provide high-quality, friendly, and educational guidance.";
 
             try
             {
-                var answer = await CallOpenAIApiAsync(prompt, "You are a helpful, encouraging, and precise AI Tutor and expert teacher.");
+                var messages = new List<ChatMessageDto>
+                {
+                    new ChatMessageDto { Role = "system", Content = systemPrompt }
+                };
+
+                if (request.ChatHistory != null && request.ChatHistory.Any())
+                {
+                    // Keep the last 10 turns of history to prevent token limits
+                    var recentHistory = request.ChatHistory.TakeLast(10);
+                    messages.AddRange(recentHistory);
+                }
+
+                messages.Add(new ChatMessageDto { Role = "user", Content = request.Question });
+
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var payloadJson = JsonSerializer.Serialize(messages, options);
+                var answer = await SendRawChatPayloadAsync(payloadJson, false);
                 return ApiResponse<string>.SuccessResponse(answer, "Tutor response generated successfully.");
             }
             catch (Exception ex)

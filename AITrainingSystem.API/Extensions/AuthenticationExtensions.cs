@@ -39,11 +39,18 @@ public static class AuthenticationExtensions
                             Encoding.UTF8.GetBytes(
                                 configuration["JwtSettings:Key"]!
                             )
-                        )
+                        ),
+                    ClockSkew = TimeSpan.FromMinutes(5)
                 };
 
             options.Events = new JwtBearerEvents
             {
+                OnAuthenticationFailed = context =>
+                {
+                    var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtAuth");
+                    logger.LogWarning(context.Exception, "JWT authentication failed: {Message}", context.Exception.Message);
+                    return Task.CompletedTask;
+                },
                 OnMessageReceived = context =>
                 {
                     var accessToken = context.Request.Query["access_token"];

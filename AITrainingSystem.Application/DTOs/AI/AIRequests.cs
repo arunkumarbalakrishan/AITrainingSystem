@@ -7,6 +7,7 @@ namespace AITrainingSystem.Application.DTOs.AI
     {
         public Guid LessonId { get; set; }
         public string Question { get; set; } = string.Empty;
+        public List<ChatMessageDto> ChatHistory { get; set; } = new List<ChatMessageDto>();
     }
 
     public class QuizGenRequestDto
