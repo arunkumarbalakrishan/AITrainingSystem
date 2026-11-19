@@ -63,20 +63,32 @@ namespace AITrainingSystem.Infrastructure.Services.AI
 
         public async Task<ApiResponse<string>> AskTutorAsync(Guid userId, Guid courseId, TutorRequestDto request)
         {
-            var course = await _courseRepository.GetByIdAsync(courseId);
-            var lesson = course?.Lessons?.FirstOrDefault(l => l.Id == request.LessonId);
+            string lessonTitle = "this lesson";
+            string courseTitle = "the course";
 
-            var lessonTitle = lesson?.Title ?? "this lesson";
-            var courseTitle = course?.Title ?? "the course";
+            if (courseId != Guid.Empty)
+            {
+                try
+                {
+                    var course = await _courseRepository.GetByIdAsync(courseId);
+                    var lesson = course?.Lessons?.FirstOrDefault(l => l.Id == request.LessonId);
+                    if (lesson != null) lessonTitle = lesson.Title;
+                    if (course != null) courseTitle = course.Title;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Could not fetch course info for tutor context. Using defaults.");
+                }
+            }
 
-            var prompt = $"You are an expert AI Tutor for the online course '{courseTitle}'. " +
+            var prompt = $"You are an expert AI Tutor and learning assistant for the online course '{courseTitle}'. " +
                          $"The student is currently learning the lesson '{lessonTitle}'.\n" +
-                         $"Please answer the following student question with high-quality educational context and details:\n" +
+                         $"Please answer the following student question with high-quality, friendly, educational context and details:\n" +
                          $"Student Question: \"{request.Question}\"";
 
             try
             {
-                var answer = await CallOpenAIApiAsync(prompt, "You are a helpful, precise computer science tutor.");
+                var answer = await CallOpenAIApiAsync(prompt, "You are a helpful, encouraging, and precise AI Tutor and expert teacher.");
                 return ApiResponse<string>.SuccessResponse(answer, "Tutor response generated successfully.");
             }
             catch (Exception ex)

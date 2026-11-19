@@ -22,10 +22,12 @@ public class AIController : ControllerBase
     [HttpPost("tutor/{courseId}")]
     public async Task<IActionResult> AskTutor(Guid courseId, [FromBody] TutorRequestDto request)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = !string.IsNullOrEmpty(idClaim) && Guid.TryParse(idClaim, out var parsedGuid)
+            ? parsedGuid
+            : Guid.Empty;
+
         var result = await _aiService.AskTutorAsync(userId, courseId, request);
-        if (!result.Success)
-            return BadRequest(result);
         return Ok(result);
     }
 
