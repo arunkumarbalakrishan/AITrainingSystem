@@ -25,7 +25,10 @@ public static class ConfigurationExtensions
                 policy => policy.SetIsOriginAllowed(origin => 
                     {
                         var host = new Uri(origin).Host;
-                        return host == "localhost" || host.EndsWith(".vercel.app") || host.EndsWith("somee.com");
+                        return host == "localhost" 
+                            || host.EndsWith(".vercel.app") 
+                            || host.EndsWith("rv-s.in") 
+                            || host.EndsWith("somee.com");
                     })
                     .AllowAnyHeader()
                     .AllowAnyMethod()
